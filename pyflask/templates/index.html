@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Book</title>
+    <style>
+        input {
+            height: 30px;
+            margin: 10px;
+        }
+
+        button {
+            height: 30px;
+            margin: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            border: 1px solid black;
+            padding: 10px;
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>使用者</h1>
+
+    <input id=book_user type="text" name="User" placeholder="User" required>
+    <button id=book_user_request type="submit">查詢</button>
+    <div id=book_user_message></div>
+
+    <!-- 新增書籍 -->
+    <h1>Add Book</h1>
+    <form id="add-book-form">
+        <input type="text" name="title" placeholder="Book" required>
+        <input type="text" name="author" placeholder="作者" required>
+        <input type="number" name="published_year" placeholder="Published Year" required>
+        <button id=book_add type="submit">新增</button>
+        <div id=book_add_message></div>
+    </form>
+
+    <!-- 查詢書籍 -->
+    <h1>Search Book</h1>
+    <form id="search-book-form">
+        <input type="text" name="book" placeholder="Book" required>
+        <input type="text" name="author" placeholder="作者" required>
+        <input type="number" name="published_year" placeholder="Published Year" required>
+        <button id=book_search_request type="submit">查詢</button>
+    </form>
+
+    <h1>Books</h1>
+    <table id="book-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>書名</th>
+                <th>作者</th>
+                <th>出版年</th>
+                <th>閱讀心得</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <div id=debug>
+
+    </div>
+
+    <script>
+        const book_user = document.getElementById('book_user');
+        const book_user_message = document.getElementById('book_user_message');
+        const tbody = document.querySelector('table#book-table tbody');
+        const debug = document.getElementById('debug');
+
+        // 查詢使用者的BTN
+        document.getElementById('book_user_request').addEventListener('click', (event) => {
+            event.preventDefault();
+            fetch(`/books/${book_user.value}`, {
+                method: "GET"
+            }).then(function (response) {
+                return response.json();
+            }).then(function (books) {
+
+                // 清空 tbody 底下既有元素，如 tr td 等
+                tbody.innerHTML = '';
+                // 將回傳資料動態生成在網頁上
+                for (let i = 0; i < books.length; i++) {
+                    let book = books[i];
+                    if (book['note'] == null) {
+                        book['note'] = '無';
+                    };
+                    //輸出對應的 html tag
+                    let tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${book['id']}</td>
+                                    <td>${book['title']}</td>
+									<td>${book['author']}</td>
+									<td>${book['published_year']}</td>
+									<td>${book['note']}</td>
+                                    <td>
+                                    <button data-id="note_${book['id']}" class="note-btn">閱讀心得</button>
+                                    <button data-id="update_${book['id']}" class="update-btn">修改</button>
+                                    <button data-id="del_${book['id']}" class="delete-btn">刪除</button>
+                                    </td>`
+                    tbody.appendChild(tr);
+
+                    // 事件代理：透過父元素來監聽 click 事件
+                    document.querySelector('tbody').addEventListener('click', function (event) {
+                        const target = event.target;
+                        // 刪除該 row
+                        if (target.classList.contains('delete-btn')) {
+                            target.closest('tr').remove();
+                            const book_del_Id = target.getAttribute('data-id');
+                            fetch(`/books/${book_user.value}/${book_del_Id}`, {
+                                method: 'DELETE'
+                            })
+                        }
+                    });
+                }
+
+            });
+
+
+            //     // 刪除的BTN
+            //     // const deleteBtn = document.querySelector(`.delete-btn[data-id="del_${book['id']}"]`);
+            //     const deleteBtn = document.querySelector(`.delete-btn[data-id="del_1"]`);
+            //     deleteBtn.addEventListener('click', function () {
+
+            //         // 在這裡添加當按下該按鈕時要執行的程式碼
+            //         fetch(`/books/${book_user.value}/del_1`, {
+            //             method: 'DELETE'
+            //         })
+            //             .then(response => response.json())
+            //             .then(data => {
+            //                 event.target.closest('tr').remove();
+            //             });
+            //     });
+
+            // }
+            //     })
+        });
+
+        // 新增書籍的BTN
+        const book_add_message = document.getElementById('book_add_message');
+        const form = document.getElementById('add-book-form');
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const bookData = {
+                title: formData.get('title'),
+                author: formData.get('author'),
+                published_year: formData.get('published_year')
+            };
+            const body = JSON.stringify(bookData);
+
+            fetch(`/books/${book_user.value}/add`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            })
+                .then(response => {
+                    if (response.ok) {
+                        response.json().then(data => {
+                            book_add_message.innerHTML = data;
+                            form.reset();
+                        })
+                    } else {
+                        book_add_message.innerHTML = 'Error adding book.';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    book_add_message.innerHTML = 'Error adding book.';
+                });
+        });
+
+        // // 刪除的BTN
+        // const deleteBtn = document.querySelector(`.delete-btn[data-id="del_${book['id']}"]`);
+        // deleteBtn.addEventListener('click', function () {
+
+        //     // 在這裡添加當按下該按鈕時要執行的程式碼
+        //     fetch(`/books/${book_user.value}/${book['id']}`, {
+        //         method: 'DELETE'
+        //     })
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             event.target.closest('tr').remove();
+        //         });
+        // });
+
+
+        // <button data-id="del_${book['id']}" class="delete-btn">刪除</button>
+        // document.addEventListener('click', (event) => {
+        //     if (event.target.classList.contains('delete-btn')) {
+        //         const bookId = event.target.dataset.id;
+        //         fetch(`/books/${bookId}`, {
+        //             method: 'DELETE'
+        //         })
+        //             .then(response => response.json())
+        //             .then(data => {
+        //                 event.target.closest('tr').remove();
+        //             });
+        //     }
+        // });
+
+        // fetch('/books')
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         const books = data.books;
+        //         const tbody = document.querySelector('#book-table tbody');
+        //         for (const book of books) {
+        //             const row = document.createElement('tr');
+        //             row.innerHTML = `
+		// 			<td>${book.id}</td>
+		// 			<td>${book.book}</td>
+		// 			<td>${book.author}</td>
+		// 			<td>${book.published_year}</td>
+		// 			<td>
+		// 				<button data-id="${book.id}" class="delete-btn">Delete</button>
+		// 			</td>
+		// 		`;
+        //             tbody.appendChild(row);
+        //         }
+        //     });
+    </script>
+</body>
+
+</html>
