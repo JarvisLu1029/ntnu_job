@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Page</title>
+    <script>
+      function editRow(row) {
+        var cells = row.getElementsByTagName("td");
+        for (var i = 0; i < cells.length - 1; i++) {
+          var cell = cells[i];
+          var content = cell.innerHTML;
+          cell.innerHTML = "<input type='text' value='" + content + "'/>";
+        }
+        var editButton = row.getElementsByClassName("edit")[0];
+        editButton.innerHTML = "儲存";
+        editButton.onclick = function() { saveRow(row); };
+        
+        var deleteButton = row.getElementsByClassName("delete")[0];
+        deleteButton.innerHTML = "取消";
+        deleteButton.onclick = function() { cancelEdit(row); };
+      }
+      
+      function saveRow(row) {
+        var cells = row.getElementsByTagName("td");
+        for (var i = 0; i < cells.length - 1; i++) {
+          var cell = cells[i];
+          var input = cell.getElementsByTagName("input")[0];
+          cell.innerHTML = input.value;
+        }
+        var editButton = row.getElementsByClassName("edit")[0];
+        editButton.innerHTML = "修改";
+        editButton.onclick = function() { editRow(row); };
+        
+        var deleteButton = row.getElementsByClassName("delete")[0];
+        deleteButton.innerHTML = "刪除";
+        deleteButton.onclick = function() { deleteRow(row); };
+      }
+      
+      function cancelEdit(row) {
+        var cells = row.getElementsByTagName("td");
+        for (var i = 0; i < cells.length - 1; i++) {
+          var cell = cells[i];
+          cell.innerHTML = cell.getAttribute("data-content");
+        }
+        var editButton = row.getElementsByClassName("edit")[0];
+        editButton.innerHTML = "修改";
+        editButton.onclick = function() { editRow(row); };
+        
+        var deleteButton = row.getElementsByClassName("delete")[0];
+        deleteButton.innerHTML = "刪除";
+        deleteButton.onclick = function() { deleteRow(row); };
+      }
+      
+      function deleteRow(row) {
+        row.remove();
+      }
+    </script>
+  </head>
+  <body>
+    <table id="myTable">
+      <tr>
+        <td data-content="John">John</td>
+        <td data-content="Doe">Doe</td>
+        <td data-content="35">35</td>
+        <td>
+          <button class="edit" onclick="editRow(this.parentNode.parentNode)">修改</button>
+          <button class="delete" onclick="deleteRow(this.parentNode.parentNode)">刪除</button>
+        </td>
+      </tr>
+      <tr>
+        <td data-content="Jane">Jane</td>
+        <td data-content="Smith">Smith</td>
+        <td data-content="27">27</td>
+        <td>
+          <button class="edit" onclick="editRow(this.parentNode.parentNode)">修改</button>
+          <button class="delete" onclick="deleteRow(this.parentNode.parentNode)">刪除</button>
+        </td>
+      </tr>
+      <tr>
+        <td data-content="Bob">Bob</td>
+        <td data-content="Johnson">Johnson</td>
+        <td data-content="42">42</td>
+        <td>
+          <button class="edit" onclick="editRow(this.parentNode.parentNode)">修改</button>
+          <button class="delete" onclick="deleteRow(this.parentNode.parentNode)">刪除</button>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

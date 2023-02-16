@@ -1,10 +1,22 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template ,g
 import pymysql
 
 app = Flask(__name__)
 db = pymysql.connect(host='localhost', user='root',
                      password='passw0rd!', database='NTNU_books', charset='utf8mb4')
 
+def get_db():
+    if 'db' not in g:
+        g.db = pymysql.connect(host='localhost', user='root',
+                     password='passw0rd!', database='NTNU_books', charset='utf8mb4')
+    return g.db
+
+@app.teardown_appcontext
+def close_db(error):
+    db = g.pop('db', None)
+
+    if db is not None:
+        db.close()
 
 @app.route('/')
 def index():
@@ -19,6 +31,7 @@ def book_add(user):
     if not (book['title'] and book['author'] and book['published_year']):
         return 'Missing book data'
 
+    db = get_db()
     cursor = db.cursor()
 
     # 使用者第一次使用就建立該使用者的table
@@ -37,21 +50,20 @@ def book_add(user):
                        (book['title'], book['author'], book['published_year']))
         db.commit()
         print('Data inserted successfully')
-
         return jsonify('Book inserted successfully')
 
 # 使用者可以刪除書籍
-@app.route('/books/<user>/del_<int:id>', methods=['DELETE'])
-def book_delete(user, id):
+@app.route('/books/<user>/del_<string:title>', methods=['DELETE'])
+def book_delete(user, title):
     print(user)
+    db = get_db()
     cursor = db.cursor()
-    cursor.execute(f'DELETE FROM {user}_books_info WHERE id={id}')
+    cursor.execute(f'DELETE FROM {user}_books_info WHERE title="{title}"')
     db.commit()
-    
     return 'Book deleted'
 
 # 使用者可以編輯書籍資訊
-@app.route('/books/<user>/<string:title>', methods=['PUT'])
+@app.route('/books/<user>/update_<string:title>', methods=['PUT'])
 def update_book(user, title):
     book = request.get_json()
     cursor = db.cursor()
@@ -96,12 +108,41 @@ def get_author(user, author):
 
 # 回傳該使用者的所有書籍
 @app.route('/books/<user>', methods=['GET'])
-def get_books_by_author(user):
+def get_books_by_user(user):
     cursor = db.cursor()
     cursor.execute(f'SELECT * FROM {user}_books_info')
     db.commit()
     books = cursor.fetchall()
     
+    # 取得欄位名稱
+    columns = [column[0] for column in cursor.description]
+    # 將MySQL查詢結果轉換為字典
+    books_dict = [dict(zip(columns, book)) for book in books]
+
+    # 返回字典
+    return jsonify(books_dict)
+
+
+# 使用者可以透過關鍵字在書名欄位中搜尋,找到他們要找的書籍
+@app.route('/books/<user>/book_search', methods=['GET'])
+def get_books_by_search(user):
+    book_title = request.args.get('book_title')
+    author = request.args.get('author')
+    published_year = request.args.get('published_year')
+    db = get_db()
+    cursor = db.cursor()
+        # 篩選出同個作者的書籍列表
+    if author and not(book_title or published_year):
+        cursor.execute(f'SELECT * FROM {user}_books_info WHERE author = %s', (author,))
+    # 用書名關鍵字做篩選
+    elif book_title:
+        cursor.execute(f'SELECT * FROM {user}_books_info WHERE title LIKE %s', ('%' + book_title + '%',))
+    else:
+        # 如果條件不符合，則直接返回一個空的 JSON 陣列
+        return jsonify([])
+
+    db.commit()
+    books = cursor.fetchall()    
     # 取得欄位名稱
     columns = [column[0] for column in cursor.description]
     # 將MySQL查詢結果轉換為字典
@@ -116,17 +157,6 @@ def get_books_by_author(user):
 #     cursor.execute(f'SELECT * FROM {user}_books_info order by published_year')
 #     books = cursor.fetchall()
 #     return jsonify(books)
-
-# 使用者可以透過關鍵字在書名欄位中搜尋,找到他們要找的書籍
-
-
-@app.route('/books/<user>/<string:search_book>', methods=['GET'])
-def get_books_by_title(user, search_book):
-    cursor = db.cursor()
-    cursor.execute(
-        f'SELECT * FROM {user}_books_info where title like "%{search_book}%" ')
-    books = cursor.fetchall()
-    return jsonify(books)
 
 
 if __name__ == '__main__':
