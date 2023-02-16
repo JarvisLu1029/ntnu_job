@@ -1,52 +1,99 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <title>My Page</title>
+
+
+
+
+
+
     <script>
-      function makeEditable() {
-        var table = document.getElementById("myTable");
-        var rows = table.getElementsByTagName("tr");
-        for (var i = 0; i < rows.length; i++) {
-          var cells = rows[i].getElementsByTagName("td");
-          for (var j = 0; j < cells.length; j++) {
-            cells[j].setAttribute("contenteditable", "true");
-          }
+        function makeEditable() {
+            var table = document.getElementById("myTable");
+            var rows = table.getElementsByTagName("tr");
+            for (var i = 0; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName("td");
+                for (var j = 0; j < cells.length; j++) {
+                    cells[j].setAttribute("contenteditable", "true");
+                }
+            }
         }
-      }
-      
-      function saveChanges() {
-        var table = document.getElementById("myTable");
-        var rows = table.getElementsByTagName("tr");
-        for (var i = 0; i < rows.length; i++) {
-          var cells = rows[i].getElementsByTagName("td");
-          for (var j = 0; j < cells.length; j++) {
-            var content = cells[j].innerHTML;
-            // 將內容存儲到資料庫或其他地方
-          }
+
+        function saveChanges() {
+            var table = document.getElementById("myTable");
+            var rows = table.getElementsByTagName("tr");
+            for (var i = 0; i < rows.length; i++) {
+                var cells = rows[i].getElementsByTagName("td");
+                for (var j = 0; j < cells.length; j++) {
+                    var content = cells[j].innerHTML;
+                    // 將內容存儲到資料庫或其他地方
+                }
+            }
         }
-      }
+
+
+
     </script>
-  </head>
-  <body>
+</head>
+
+<body>
     <button onclick="makeEditable()">Make editable</button>
     <table id="myTable">
-      <tr>
-        <td>John</td>
-        <td>Doe</td>
-        <td>35</td>
-      </tr>
-      <tr>
-        <td>Jane</td>
-        <td>Smith</td>
-        <td>27</td>
-      </tr>
-      <tr>
-        <td>Bob</td>
-        <td>Johnson</td>
-        <td>42</td>
-      </tr>
+        <tr>
+            <td>John</td>
+            <td>Doe</td>
+            <td>35</td>
+        </tr>
+        <tr>
+            <td>Jane</td>
+            <td>Smith</td>
+            <td>27</td>
+        </tr>
+        <tr>
+            <td>Bob</td>
+            <td>Johnson</td>
+            <td>42</td>
+        </tr>
     </table>
     <br>
     <button onclick="saveChanges()">Save changes</button>
-  </body>
+
+
+    <ul id="myList">
+        <li>Apple</li>
+        <li>Pineapple</li>
+        <li>Banana</li>
+        <li>Orange</li>
+    </ul>
+
+    <button id="sortButton">Sort List</button>
+
+
+
+    <script>
+        // 綁定按鈕點擊事件
+        const sortButton = document.getElementById("sortButton");
+        sortButton.addEventListener("click", function () {
+            // 將列表項目轉換為數組，並排序
+            const list = document.getElementById("myList");
+            const listItems = Array.from(list.getElementsByTagName("li"));
+            listItems.sort(function (a, b) {
+                return a.textContent.localeCompare(b.textContent);
+            });
+
+            // 清空列表，重新添加排序後的項目
+            list.innerHTML = "";
+            listItems.forEach(function (item) {
+                list.appendChild(item);
+            });
+        });
+    </script>
+
+
+
+
+</body>
+
 </html>

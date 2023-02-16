@@ -55,10 +55,10 @@ def book_add(user):
 # 使用者可以刪除書籍
 @app.route('/books/<user>/del_<string:title>', methods=['DELETE'])
 def book_delete(user, title):
-    print(user)
+    print(title)
     db = get_db()
     cursor = db.cursor()
-    cursor.execute(f'DELETE FROM {user}_books_info WHERE title="{title}"')
+    cursor.execute(f'DELETE FROM {user}_books_info WHERE title= %s',(title))
     db.commit()
     return 'Book deleted'
 
@@ -66,51 +66,98 @@ def book_delete(user, title):
 @app.route('/books/<user>/update_<string:title>', methods=['PUT'])
 def update_book(user, title):
     book = request.get_json()
+    db = get_db()
     cursor = db.cursor()
-    cursor.execute(f'UPDATE {user}_books_info SET title = %s, author = %s, published_year = %s where title = %s',
-                   (book['title'], book['author'], book['published_year'], title))
-    db.commit()
-    return 'Book updated'
+
+    # 檢查書籍是否已存在
+    cursor.execute(f'SELECT * FROM {user}_books_info WHERE title=%s', (title))
+    result = cursor.fetchone()
+    if not result:
+        print('Book not exists')
+        return jsonify('Book not exists')
+        
+    update_values = {}
+    if 'title' in book :
+        if isinstance(book['title'], str) and book['title'] != '':
+            update_values['title'] = book['title']
+    if 'author' in book:
+        if isinstance(book['author'], str) and book['author'] != '':
+            update_values['author'] = book['author']
+    if 'published_year' in book:
+        if isinstance(book['published_year'], str) and book['published_year'] != '':
+            update_values['published_year'] = book['published_year']
+    print(book)
+    print(update_values)
+
+    if update_values:
+        set_clause = ', '.join([f"{key} = %s" for key in update_values.keys()])
+        values = tuple(update_values.values()) + (title,)
+        query = f"UPDATE `{user}_books_info` SET {set_clause} WHERE `title` = %s"
+        cursor.execute(query, values)
+        db.commit()
+        return 'Book updated'
+    else:
+        return 'No valid fields to update'
 
 # 使用者可以為某一本書籍新增、刪除、編輯閱讀心得
-@app.route('/books/<user>/<string:title>/<note>', methods=['GET'])
-def get_books(user):
+@app.route('/books/<user>/<string:title>/note', methods=['DELETE','PUT'])
+def get_books(user,title):
+    db = get_db()
     cursor = db.cursor()
-    cursor.execute(f'SELECT * FROM {user}_books_info')
-    books = cursor.fetchall()
-    return jsonify(books)
+    # 檢查書籍是否已存在
+    cursor.execute(f'SELECT * FROM {user}_books_info WHERE title=%s', (title))
+    result = cursor.fetchone()
+    if not result:
+        print('Book not exists')
+        return jsonify('Book not exists')
+    
+    if request.method=="PUT":
+        book = request.get_json()
+        cursor.execute(f'UPDATE {user}_books_info SET note = %s where title = %s',
+                       (book['note'], title))
+        db.commit()
+        print(book)
+        return jsonify('note updated')
+    
+    if request.method=="DELETE":
+        cursor.execute(f'UPDATE {user}_books_info SET note = null where title = %s',
+                       (title))
+        db.commit()
+        print('note deleted')
+        return jsonify('note deleted')
 
 # 使用者可以篩選出同個作者的書籍列表
 @app.route('/books/<user>/<string:author>', methods=['GET'])
 def get_author(user, author):
+    db = get_db()
     cursor = db.cursor()
-    cursor.execute(f'SELECT * FROM {user}_books_info where author = {author}')
+    cursor.execute(f'SELECT title,author,published_year,note FROM {user}_books_info where author = {author}')
     books = cursor.fetchall()
     return jsonify(books)
 
-# # 使用者可以依照作者與出版年排列書籍列表
-# @app.route('/books/<user>', methods=['GET'])
-# def get_books(user):
-#     author = request.args.get('author')
-#     published_year = request.args.get('published_year')
+# 使用者可以依照作者與出版年排列書籍列表
+@app.route('/books/<user>/orderby', methods=['GET'])
+def get_books_orderby(user):
+    db = get_db()
+    cursor = db.cursor()
+    sql = f'SELECT * FROM {user}_books_info ORDER BY author, published_year'
+    cursor.execute(sql)
+    books = cursor.fetchall()
 
-#     cursor = db.cursor()
-#     sql = f'SELECT * FROM {user}_books_info'
-#     if author:
-#         sql += f' WHERE author = "{author}"'
-#     if published_year:
-#         sql += f' WHERE published_year = {published_year}'
-#     sql += ' ORDER BY author, published_year'
-#     cursor.execute(sql)
+    # 取得欄位名稱
+    columns = [column[0] for column in cursor.description]
+    # 將MySQL查詢結果轉換為字典
+    books_dict = [dict(zip(columns, book)) for book in books]
 
-#     books = cursor.fetchall()
-#     return jsonify(books)
+    # 返回字典
+    return jsonify(books_dict)
 
 # 回傳該使用者的所有書籍
 @app.route('/books/<user>', methods=['GET'])
 def get_books_by_user(user):
+    db = get_db()
     cursor = db.cursor()
-    cursor.execute(f'SELECT * FROM {user}_books_info')
+    cursor.execute(f'SELECT title,author,published_year,note FROM {user}_books_info')
     db.commit()
     books = cursor.fetchall()
     
@@ -122,21 +169,20 @@ def get_books_by_user(user):
     # 返回字典
     return jsonify(books_dict)
 
-
 # 使用者可以透過關鍵字在書名欄位中搜尋,找到他們要找的書籍
 @app.route('/books/<user>/book_search', methods=['GET'])
 def get_books_by_search(user):
+    # 取得前端網頁的欄位資料
     book_title = request.args.get('book_title')
     author = request.args.get('author')
-    published_year = request.args.get('published_year')
     db = get_db()
     cursor = db.cursor()
-        # 篩選出同個作者的書籍列表
-    if author and not(book_title or published_year):
-        cursor.execute(f'SELECT * FROM {user}_books_info WHERE author = %s', (author,))
+    # 用作者篩選書籍列表
+    if author and not book_title:
+        cursor.execute(f'SELECT title,author,published_year,note FROM {user}_books_info WHERE author = %s', (author,))
     # 用書名關鍵字做篩選
     elif book_title:
-        cursor.execute(f'SELECT * FROM {user}_books_info WHERE title LIKE %s', ('%' + book_title + '%',))
+        cursor.execute(f'SELECT title,author,published_year,note FROM {user}_books_info WHERE title LIKE %s', ('%' + book_title + '%',))
     else:
         # 如果條件不符合，則直接返回一個空的 JSON 陣列
         return jsonify([])
