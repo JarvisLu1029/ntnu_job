@@ -126,14 +126,6 @@ def get_books(user,title):
         print('note deleted')
         return jsonify('note deleted')
 
-# 使用者可以篩選出同個作者的書籍列表
-@app.route('/books/<user>/<string:author>', methods=['GET'])
-def get_author(user, author):
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute(f'SELECT title,author,published_year,note FROM {user}_books_info where author = {author}')
-    books = cursor.fetchall()
-    return jsonify(books)
 
 # 使用者可以依照作者與出版年排列書籍列表
 @app.route('/books/<user>/orderby', methods=['GET'])

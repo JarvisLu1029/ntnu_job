@@ -1,30 +1,55 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>Add Book</title>
 	<style>
 		input {
 			margin: 5px;
 		}
+
 		button {
 			margin: 5px;
 		}
+
 		table {
 			border-collapse: collapse;
 		}
-		td, th {
+
+		td,
+		th {
 			border: 1px solid black;
 			padding: 5px;
 		}
+
+		.my-btn {
+			display: inline-block;
+			padding: 10px 20px;
+			font-size: 16px;
+			font-weight: bold;
+			text-align: center;
+			text-decoration: none;
+			background-color: #4CAF50;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.my-btn:hover {
+			background-color: #3e8e41;
+		}
 	</style>
 </head>
+
 <body>
 	<h1>Add Book</h1>
 	<form id="add-book-form">
 		<input type="text" name="book" placeholder="Book" required>
 		<input type="text" name="author" placeholder="Author" required>
 		<input type="number" name="published_year" placeholder="Published Year" required>
-		<button type="submit">Add Book</button>
+		<button class="my-btn" type="submit">Add Book</button>
 	</form>
 	<h1>Books</h1>
 	<table id="book-table">
@@ -56,11 +81,11 @@
 					published_year: formData.get('published_year')
 				})
 			})
-			.then(response => response.json())
-			.then(data => {
-				const book = data.book;
-				const row = document.createElement('tr');
-				row.innerHTML = `
+				.then(response => response.json())
+				.then(data => {
+					const book = data.book;
+					const row = document.createElement('tr');
+					row.innerHTML = `
 					<td>${book.id}</td>
 					<td>${book.book}</td>
 					<td>${book.author}</td>
@@ -69,10 +94,10 @@
 						<button data-id="${book.id}" class="delete-btn">Delete</button>
 					</td>
 				`;
-				const tbody = document.querySelector('#book-table tbody');
-				tbody.appendChild(row);
-				form.reset();
-			});
+					const tbody = document.querySelector('#book-table tbody');
+					tbody.appendChild(row);
+					form.reset();
+				});
 		});
 
 		document.addEventListener('click', (event) => {
@@ -81,21 +106,21 @@
 				fetch(`/books/${bookId}`, {
 					method: 'DELETE'
 				})
-				.then(response => response.json())
-				.then(data => {
-					event.target.closest('tr').remove();
-				});
+					.then(response => response.json())
+					.then(data => {
+						event.target.closest('tr').remove();
+					});
 			}
 		});
 
 		fetch('/books')
-		.then(response => response.json())
-		.then(data => {
-			const books = data.books;
-			const tbody = document.querySelector('#book-table tbody');
-			for (const book of books) {
-				const row = document.createElement('tr');
-				row.innerHTML = `
+			.then(response => response.json())
+			.then(data => {
+				const books = data.books;
+				const tbody = document.querySelector('#book-table tbody');
+				for (const book of books) {
+					const row = document.createElement('tr');
+					row.innerHTML = `
 					<td>${book.id}</td>
 					<td>${book.book}</td>
 					<td>${book.author}</td>
@@ -104,9 +129,9 @@
 						<button data-id="${book.id}" class="delete-btn">Delete</button>
 					</td>
 				`;
-				tbody.appendChild(row);
-			}
-		});
+					tbody.appendChild(row);
+				}
+			});
 	</script>
 </body>
 

@@ -48,24 +48,24 @@
     <!-- 查詢書籍 -->
     <h1>Search Book</h1>
     <form id="search-book-form">
-        <input type="text" name="title" placeholder="書名">
-        <input type="text" name="author" placeholder="作者">
+        <input type="text" name="title" placeholder="書名關鍵字">
+        <input type="text" name="author" placeholder="完整的作者名">
         <button id=book_search_request type="submit">查詢</button>
     </form>
 
     <!-- 編輯書籍 -->
     <h1>Edit Book</h1>
     <form id="edit-book-form">
-        <input id=edit_old_book type="text" name="old_title" placeholder="書名" required>
+        <input id=edit_old_book type="text" name="old_title" placeholder="原書名" required>
         <br />
-        <input type="text" name="new_title" placeholder="書名">
-        <input type="text" name="new_author" placeholder="作者">
-        <input type="number" name="new_published_year" placeholder="出版年">
+        <input type="text" name="new_title" placeholder="新的書名">
+        <input type="text" name="new_author" placeholder="新的作者">
+        <input type="number" name="new_published_year" placeholder="新的出版年">
         <button id=book_edit_request type="submit">確認修改</button>
         <div id=book_edit_message></div>
     </form>
 
-    <!-- 新增書籍心得 -->
+    <!-- 書籍心得 -->
     <h1>Book Note</h1>
     <form id="book-note-form">
         <input type="text" name="title" placeholder="書名">
@@ -73,7 +73,9 @@
         <textarea id="book_experience" name="experience" placeholder="在這邊寫下你的閱讀心得"></textarea>
         <button id=book_note_request type="submit">送出</button>
     </form>
+    <button id=book_note_delete >刪除心得</button>
 
+    <br />
     <button id="sortButton_year">Sort Year</button>
     <button id="sortButtonAuthor">Sort Author</button>
 
@@ -100,7 +102,7 @@
         // 動態修改按鈕
         function editRow(row) {
             var cells = row.getElementsByTagName("td");
-            for (var i = 0; i < cells.length - 1; i++) {
+            for (var i = 0; i < cells.length ; i++) {
                 var cell = cells[i];
                 var content = cell.innerHTML;
                 cell.innerHTML = "<input type='text' value='" + content + "'/>";
@@ -115,7 +117,7 @@
             var cells = row.getElementsByTagName("td");
             var data = {};
 
-            for (var i = 0; i < cells.length - 1; i++) {
+            for (var i = 0; i < cells.length ; i++) {
                 var cell = cells[i];
                 var input = cell.getElementsByTagName("input")[0];
                 var fieldValue = input.value;
@@ -174,7 +176,7 @@
                 // 清空 tbody 底下既有元素，如 tr td 等
                 tbody.innerHTML = '';
                 // 將回傳資料動態生成在網頁上
-                for (let i = 0; i < books.length - 1; i++) {
+                for (let i = 0; i < books.length ; i++) {
                     let book = books[i];
                     if (book['note'] == null) {
                         book['note'] = '無';
@@ -289,7 +291,7 @@
                 // 清空 tbody 底下既有元素，如 tr td 等
                 tbody.innerHTML = '';
                 // 將回傳資料動態生成在網頁上
-                for (let i = 0; i < books.length - 1; i++) {
+                for (let i = 0; i < books.length ; i++) {
                     let book = books[i];
                     if (book['note'] == null) {
                         book['note'] = '無';
@@ -339,7 +341,6 @@
             const search_book_data = {
                 book_title: search_book_formData.get('title'),
                 author: search_book_formData.get('author'),
-                published_year: search_book_formData.get('published_year')
             };
 
             const query_string = new URLSearchParams(search_book_data).toString();
@@ -351,7 +352,7 @@
                     // 清空 tbody 底下既有元素，如 tr td 等
                     tbody.innerHTML = '';
                     // 將回傳資料動態生成在網頁上
-                    for (let i = 0; i < books.length - 1; i++) {
+                    for (let i = 0; i < books.length ; i++) {
                         let book = books[i];
                         if (book['note'] == null) {
                             book['note'] = '無';
@@ -387,7 +388,7 @@
             };
             const body = JSON.stringify(bookData);
 
-            fetch(`/books/${book_user.value}/add`, {
+            fetch(`/books/${book_user.value}/add/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -444,7 +445,7 @@
         });
 
         const bookNoteForm = document.getElementById('book-note-form');
-
+        
         bookNoteForm.addEventListener('submit', (event) => {
             event.preventDefault(); // 防止表單提交頁面重新載入
 
@@ -465,7 +466,19 @@
                 body: body
             })
         });
+        // 刪除心得
+        document.querySelector('button#book_note_delete').addEventListener('click', function (event) {
+            event.preventDefault(); // 防止表單提交頁面重新載入
+            const noteFormTitle = document.querySelector('form#book-note-form input')
 
+            fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
+                method: 'DELETE',
+            
+            });
+
+        })
+    
+    
     </script>
 </body>
 

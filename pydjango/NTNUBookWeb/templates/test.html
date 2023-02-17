@@ -1,0 +1,598 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+
+	<title>Astral by HTML5 UP</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="../statics/css/main.css" />
+	<noscript>
+		<link rel="stylesheet" href="../statics/css/noscript.css" />
+	</noscript>
+
+	<style>
+		.my-btn {
+			display: inline-block;
+			padding: 10px 20px;
+			font-size: 16px;
+			font-weight: bold;
+			text-align: center;
+			text-decoration: none;
+			background-color: #4CAF50;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		.my-btn:hover {
+			background-color: #3e8e41;
+		}
+	</style>
+</head>
+
+<body class="is-preload">
+
+	<!-- Wrapper-->
+	<div id="wrapper">
+
+		<!-- Nav -->
+		<nav id="nav">
+			<a href="#" class="icon solid fa-home"><span>USER</span></a>
+			<a href="#work" class="icon solid fa-folder"><span>Books</span></a>
+			<a href="#contact" class="icon solid fa-envelope"><span>Contact</span></a>
+			<a href="https://github.com/JarvisLu1029/ntnu_job" class="icon brands fa-github"><span>GitHub</span></a>
+		</nav>
+
+		<!-- Main -->
+		<div id="main">
+
+			<!-- Me -->
+			<article id="home" class="panel intro">
+				<header>
+					<h1>Jane Doe</h1>
+					<p>Senior Astral Projectionist</p>
+				</header>
+				<a href="#work" class="jumplink pic">
+					<span class="arrow icon solid fa-chevron-right"><span>See my work</span></span>
+					<img src="../statics/images/me.jpg" alt="" />
+				</a>
+			</article>
+
+			<!-- Work -->
+			<article id="work" class="panel">
+				<header>
+					<h2>BOOKS</h2>
+				</header>
+				<p>
+
+				</p>
+				<section>
+
+					<h3>使用者</h3>
+					<div class="row">
+						<div class="col-4 col-12-medium">
+							<input id=book_user type="text" name="User" placeholder="User" required>
+						</div>
+						<div class="col-2 col-12-medium">
+							<button class="my-btn" id=book_user_request type="submit">查詢</button>
+						</div>
+						<div class="col-2 col-12-medium">
+							<button class="my-btn" id=book_user_orderby type="submit">排序查詢</button>
+						</div>
+						<div id=book_user_message></div>
+					</div>
+
+					<br />
+					<!-- 新增書籍 -->
+					<h3>Add Book</h3>
+					<form id="add-book-form">
+						<div class="row">
+							<div class="col-6 col-12-medium">
+								<input type="text" name="title" placeholder="書名" required>
+							</div>
+							<div class="col-3 col-12-medium">
+								<input type="text" name="author" placeholder="作者" required>
+							</div>
+							<div class="col-3 col-12-medium">
+								<input type="number" name="published_year" placeholder="出版年" value=2000 required>
+							</div>
+							<div>
+								<button class="my-btn" id=book_add type="submit">新增</button>
+							</div>
+							<div id=book_add_message></div>
+						</div>
+					</form>
+					<!-- 查詢書籍 -->
+					<h3>Search Book</h3>
+					<form id="search-book-form">
+						<input type="text" name="title" placeholder="書名關鍵字">
+						<input type="text" name="author" placeholder="完整的作者名">
+						<button id=book_search_request type="submit">查詢</button>
+					</form>
+
+					<!-- 編輯書籍 -->
+					<h1>Edit Book</h1>
+					<form id="edit-book-form">
+						<input id=edit_old_book type="text" name="old_title" placeholder="原書名" required>
+						<br />
+						<input type="text" name="new_title" placeholder="新的書名">
+						<input type="text" name="new_author" placeholder="新的作者">
+						<input type="number" name="new_published_year" placeholder="新的出版年">
+						<button id=book_edit_request type="submit">確認修改</button>
+						<div id=book_edit_message></div>
+					</form>
+
+					<!-- 書籍心得 -->
+					<h3>Book Note</h3>
+					<form id="book-note-form">
+						<input type="text" name="title" placeholder="書名">
+						<br />
+						<textarea id="book_experience" name="experience" placeholder="在這邊寫下你的閱讀心得"></textarea>
+						<button id=book_note_request type="submit">送出</button>
+					</form>
+					<button id=book_note_delete>刪除心得</button>
+
+					<br />
+					<button id="sortButton_year">Sort Year</button>
+					<button id="sortButtonAuthor">Sort Author</button>
+
+					<h3>Books</h3>
+					<table id="book-table">
+						<thead>
+							<tr>
+								<th>書名</th>
+								<th>作者</th>
+								<th>出版年</th>
+								<th>閱讀心得</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody id="book-list">
+						</tbody>
+					</table>
+
+					<div id=debug>
+
+					</div>
+
+					<script>
+						// 動態修改按鈕
+						function editRow(row) {
+							var cells = row.getElementsByTagName("td");
+							for (var i = 0; i < cells.length; i++) {
+								var cell = cells[i];
+								var content = cell.innerHTML;
+								cell.innerHTML = "<input type='text' value='" + content + "'/>";
+							}
+							var editButton = row.getElementsByClassName("edit")[0];
+							editButton.innerHTML = "儲存";
+							editButton.onclick = function () { saveRow(row); };
+
+						}
+						// 修改後儲存
+						function saveRow(row) {
+							var cells = row.getElementsByTagName("td");
+							var data = {};
+
+							for (var i = 0; i < cells.length; i++) {
+								var cell = cells[i];
+								var input = cell.getElementsByTagName("input")[0];
+								var fieldValue = input.value;
+								data['title'] = cells[0].getElementsByTagName("input")[0].value
+								data['author'] = cells[1].getElementsByTagName("input")[0].value
+								data['published_year'] = cells[2].getElementsByTagName("input")[0].value
+
+							}
+
+							// 更新資料
+							fetch(`/books/${book_user.value}/update_${data['title']}`, {
+								method: 'PUT',
+								headers: {
+									'Content-Type': 'application/json;charset=UTF-8'
+								},
+								body: JSON.stringify(data)
+							})
+								.then(response => response.json())
+								.then(result => {
+									// Handle response from server
+									console.log(result);
+								})
+								.catch(error => {
+									// Handle error
+									console.error(error);
+								});
+
+							// Find the edit button in the row and update its properties
+							var editButton = row.querySelector('.edit');
+							editButton.innerHTML = "修改";
+							editButton.onclick = function () { editRow(row); };
+							// Debugging code
+							document.getElementById('debug').innerHTML = data['title'];
+						}
+
+					</script>
+
+					<script>
+						const book_user = document.getElementById('book_user');
+						const book_user_message = document.getElementById('book_user_message');
+						const tbody = document.querySelector('table#book-table tbody');
+						const debug = document.getElementById('debug');
+
+						// 查詢使用者底下書籍的BTN
+						document.getElementById('book_user_request').addEventListener('click', (event) => {
+							if (!book_user.validity.valid) {
+								alert("請輸入使用者");
+								event.preventDefault(); // 防止提交表單
+							}
+							fetch(`/books/${book_user.value}`, {
+								method: "GET"
+							}).then(function (response) {
+								return response.json();
+							}).then(function (books) {
+
+								// 清空 tbody 底下既有元素，如 tr td 等
+								tbody.innerHTML = '';
+								// 將回傳資料動態生成在網頁上
+								for (let i = 0; i < books.length; i++) {
+									let book = books[i];
+									if (book['note'] == null) {
+										book['note'] = '無';
+									};
+									//輸出對應的 html tag
+									let tr = document.createElement("tr");
+									tr.setAttribute("id", "myTableRow");
+									tr.innerHTML = `<td>${book['title']}</td>
+																		<td>${book['author']}</td>
+																		<td>${book['published_year']}</td>
+																		<td>${book['note']}</td>
+																		<td>
+																		<button data-id="note_${book['id']}" class="note-btn">閱讀心得</button>
+																		<button class="edit" onclick="editRow(this.parentNode.parentNode)" data-id="update_${book['title']}" >修改</button>
+																		<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																		</td>`
+									tbody.appendChild(tr);
+
+									// 事件代理：透過父元素來監聽 click 事件
+									document.querySelector('tbody').addEventListener('click', function (event) {
+										const target = event.target;
+										// 刪除該 row 以及該資料庫 data
+										if (target.classList.contains('delete-btn')) {
+											target.closest('tr').remove();
+											const book_del_title = target.getAttribute('data-id');
+											fetch(`/books/${book_user.value}/${book_del_title}`, {
+												method: 'DELETE'
+											})
+										}
+
+										// if (target.classList.contains('update-btn')) {
+										//     const book_update = target.getAttribute('data-id');
+
+										//     fetch(`/books/${book_user.value}/${book_update}`), {
+										//         method: 'PUT'
+										//     }
+										// }
+									});
+								};
+							});
+						});
+
+						// 排序（升序或降序）
+						let sortOrder = "ascending"; // 或者 "descending"
+						// 綁定年份按鈕事件
+						const sortButtonYear = document.getElementById("sortButton_year");
+						sortButtonYear.addEventListener("click", function () {
+							// 获取表格行元素并转换为数组
+							const rows = Array.from(tbody.getElementsByTagName("tr"));
+
+							// 确定要根据哪一列排序（假设是第四列，即“published_year”）
+							const columnIndex = 2;
+							// 获取要排序的单元格，并转换为数组
+							const cells = rows.map(function (row) {
+								return row.getElementsByTagName("td")[columnIndex];
+							});
+
+							// 根据单元格中的值进行排序
+							cells.sort(function (a, b) {
+								return a.textContent.localeCompare(b.textContent);
+							});
+
+							if (sortOrder === "descending") {
+								cells.reverse();
+							}
+							// 將排序後的欄位重新添加至表格
+							cells.forEach(function (cell) {
+								const row = cell.parentNode;
+								row.parentNode.appendChild(row);
+							});
+							// 更改排序顺序
+							sortOrder = sortOrder === "ascending" ? "descending" : "ascending";
+						});
+
+						// 綁定作者按鈕事件
+						const sortButtonAuthor = document.getElementById("sortButtonAuthor");
+						sortButtonAuthor.addEventListener("click", function () {
+							// 获取表格行元素并转换为数组
+							const rows = Array.from(tbody.getElementsByTagName("tr"));
+
+							// 确定要根据哪一列排序（第三欄 => Author）
+							const columnIndex = 1;
+							// 获取要排序的单元格，并转换为数组
+							const cells = rows.map(function (row) {
+								return row.getElementsByTagName("td")[columnIndex];
+							});
+							// 根据单元格中的值进行排序
+							cells.sort(function (a, b) {
+								return a.textContent.localeCompare(b.textContent);
+							});
+							if (sortOrder === "descending") {
+								cells.reverse();
+							}
+							// 將排序後的欄位重新添加至表格
+							cells.forEach(function (cell) {
+								const row = cell.parentNode;
+								row.parentNode.appendChild(row);
+							});
+							// 更改排序顺序
+							sortOrder = sortOrder === "ascending" ? "descending" : "ascending";
+						});
+
+						// 查詢書籍與年份的排序
+						document.getElementById('book_user_orderby').addEventListener('click', (event) => {
+							event.preventDefault();
+							fetch(`/books/${book_user.value}/orderby`, {
+								method: "GET"
+							}).then(function (response) {
+								return response.json();
+							}).then(function (books) {
+
+								// 清空 tbody 底下既有元素，如 tr td 等
+								tbody.innerHTML = '';
+								// 將回傳資料動態生成在網頁上
+								for (let i = 0; i < books.length; i++) {
+									let book = books[i];
+									if (book['note'] == null) {
+										book['note'] = '無';
+									};
+									//輸出對應的 html tag
+									let tr = document.createElement("tr");
+									tr.innerHTML = `<td>${book['title']}</td>
+																		<td>${book['author']}</td>
+																		<td>${book['published_year']}</td>
+																		<td>${book['note']}</td>
+																		<td>
+																		<button data-id="note_${book['id']}" class="note-btn">閱讀心得</button>
+																		<button class="edit" onclick="editRow(this.parentNode.parentNode)" data-id="update_${book['title']}" >修改</button>
+																		<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																		</td>`
+									tbody.appendChild(tr);
+
+									// 事件代理：透過父元素來監聽 click 事件
+									document.querySelector('tbody').addEventListener('click', function (event) {
+										const target = event.target;
+										// 刪除該 row 以及該資料庫 data
+										if (target.classList.contains('delete-btn')) {
+											target.closest('tr').remove();
+											const book_del_title = target.getAttribute('data-id');
+											fetch(`/books/${book_user.value}/${book_del_title}`, {
+												method: 'DELETE'
+											})
+										}
+
+										// if (target.classList.contains('update-btn')) {
+										//     const book_update = target.getAttribute('data-id');
+
+										//     fetch(`/books/${book_user.value}/${book_update}`), {
+										//         method: 'PUT'
+										//     }
+										// }
+									});
+								};
+							});
+						});
+
+						// 搜尋欄位的BTN
+						const search_book_form = document.getElementById('search-book-form');
+						search_book_form.addEventListener('submit', (event) => {
+							event.preventDefault();
+							const search_book_formData = new FormData(search_book_form);
+							const search_book_data = {
+								book_title: search_book_formData.get('title'),
+								author: search_book_formData.get('author'),
+							};
+
+							const query_string = new URLSearchParams(search_book_data).toString();
+							fetch(`/books/${book_user.value}/book_search?${query_string}`, {
+								method: 'GET',
+							})
+								.then(response => response.json())
+								.then(books => {
+									// 清空 tbody 底下既有元素，如 tr td 等
+									tbody.innerHTML = '';
+									// 將回傳資料動態生成在網頁上
+									for (let i = 0; i < books.length; i++) {
+										let book = books[i];
+										if (book['note'] == null) {
+											book['note'] = '無';
+										};
+										//輸出對應的 html tag
+										let tr = document.createElement("tr");
+										tr.innerHTML = `<td>${book['title']}</td>
+																			<td>${book['author']}</td>
+																			<td>${book['published_year']}</td>
+																			<td>${book['note']}</td>
+																			<td>
+																			<button data-id="note_${book['id']}" class="note-btn">閱讀心得</button>
+																			<button class="edit" onclick="editRow(this.parentNode.parentNode)" data-id="update_${book['title']}" >修改</button>
+																			<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																			</td>`
+										tbody.appendChild(tr);
+									}
+								});
+						});
+
+						// 放新增書籍的回傳訊息
+						const book_add_message = document.getElementById('book_add_message');
+						// 新增書籍的BTN
+						const form = document.getElementById('add-book-form');
+						form.addEventListener('submit', (event) => {
+							event.preventDefault();
+
+							const formData = new FormData(form);
+							const bookData = {
+								title: formData.get('title'),
+								author: formData.get('author'),
+								published_year: formData.get('published_year')
+							};
+							const body = JSON.stringify(bookData);
+
+							fetch(`/books/${book_user.value}/add/`, {
+								method: 'POST',
+								headers: {
+									'Content-Type': 'application/json'
+								},
+								body: body
+							})
+								.then(response => {
+									if (response.ok) {
+										response.json().then(data => {
+											book_add_message.innerHTML = data;
+											form.reset();
+										})
+									} else {
+										book_add_message.innerHTML = 'Error adding book.';
+									}
+								})
+								.catch(error => {
+									console.error('Error:', error);
+									book_add_message.innerHTML = 'Error adding book.';
+								});
+						});
+
+						// 編輯書籍
+						const edit_book_form = document.getElementById('edit-book-form');
+						const edit_book_message = document.getElementById('book_edit_message');
+
+						edit_book_form.addEventListener('submit', (event) => {
+							const edit_old_book = document.getElementById('edit_old_book');
+							if (!book_user.validity.valid | !edit_old_book.validity.valid) {
+								alert("請輸入使用者");
+								event.preventDefault(); // 防止提交表單
+							}
+							event.preventDefault();
+							const editFormData = new FormData(edit_book_form);
+							const editNewData = {
+								title: editFormData.get('new_title'),
+								author: editFormData.get('new_author'),
+								published_year: editFormData.get('new_published_year')
+							};
+							const body = JSON.stringify(editNewData);
+
+							fetch(`/books/${book_user.value}/update_${edit_old_book.value}`, {
+								method: 'PUT',
+								headers: {
+									'Content-Type': 'application/json'
+								},
+								body: body
+							})
+								.then(function (response) {
+									return response.json();
+								}).then(function (message) {
+									edit_book_message.innerHTML = message;
+								})
+						});
+
+						const bookNoteForm = document.getElementById('book-note-form');
+
+						bookNoteForm.addEventListener('submit', (event) => {
+							event.preventDefault(); // 防止表單提交頁面重新載入
+
+							const bookExperience = document.getElementById('book_experience');
+							const noteFormTitle = document.querySelector('form#book-note-form input')
+
+							const noteFormData = new FormData(bookNoteForm);
+							const editNewData = {
+								title: noteFormData.get('title'),
+								note: noteFormData.get('experience')
+							};
+							const body = JSON.stringify(editNewData);
+							fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
+								method: 'PUT',
+								headers: {
+									'Content-Type': 'application/json'
+								},
+								body: body
+							})
+						});
+						// 刪除心得
+						document.querySelector('button#book_note_delete').addEventListener('click', function (event) {
+							event.preventDefault(); // 防止表單提交頁面重新載入
+							const noteFormTitle = document.querySelector('form#book-note-form input')
+
+							fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
+								method: 'DELETE',
+
+							});
+
+						})
+
+
+					</script>
+
+
+				</section>
+			</article>
+
+			<!-- Contact -->
+			<article id="contact" class="panel">
+				<header>
+					<h2>Contact Me</h2>
+				</header>
+				<form action="#" method="post">
+					<div>
+						<div class="row">
+							<div class="col-6 col-12-medium">
+								<input type="text" name="name" placeholder="Name" />
+							</div>
+							<div class="col-6 col-12-medium">
+								<input type="text" name="email" placeholder="Email" />
+							</div>
+							<div class="col-12">
+								<input type="text" name="subject" placeholder="Subject" />
+							</div>
+							<div class="col-12">
+								<textarea name="message" placeholder="Message" rows="6"></textarea>
+							</div>
+							<div class="col-12">
+								<input type="submit" value="Send Message" />
+							</div>
+						</div>
+					</div>
+				</form>
+			</article>
+
+		</div>
+
+		<!-- Footer -->
+		<div id="footer">
+			<ul class="copyright">
+				<li>&copy; Untitled.</li>
+				<li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+			</ul>
+		</div>
+
+	</div>
+
+	<!-- Scripts -->
+	<script src="../statics/js/jquery.min.js"></script>
+	<script src="../statics/js/browser.min.js"></script>
+	<script src="../statics/js/breakpoints.min.js"></script>
+	<script src="../statics/js/util.js"></script>
+	<script src="../statics/js/main.js"></script>
+
+</body>
+
+</html>
