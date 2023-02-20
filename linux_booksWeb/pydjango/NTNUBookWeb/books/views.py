@@ -25,42 +25,65 @@ def get_books_by_user(request, user):
             try:
                 cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info")
                 books = cursor.fetchall()
-
                 # 取得欄位名稱
                 columns = [column[0] for column in cursor.description]
                 # 將MySQL查詢結果轉換為字典
                 books_dict = [dict(zip(columns, book)) for book in books]
                 return JsonResponse(books_dict, safe=False)
-            except (ProgrammingError, OperationalError):
-                error_message = "該使用者尚未建立書籍"
-                return JsonResponse({'error': error_message}, status=400)
+            
+            except:
+                return HttpResponseBadRequest('No User')
+    else:
+        return HttpResponseBadRequest('無效的請求方法')
 
 # 作者或關鍵字搜尋
 def get_books_by_search(request, user):
-    # 取得前端網頁的欄位資料
-    book_title = request.GET.get('book_title')
-    author = request.GET.get('author')
-    # 建立資料庫連接
-    with connection.cursor() as cursor:
-        # 用作者篩選書籍列表
-        if author and not book_title:
-            cursor.execute(f'SELECT title, author, published_year, note FROM {user}_books_info WHERE author = "{author}"')
-        # 用書名關鍵字做篩選
-        elif book_title:
-            cursor.execute(f'SELECT title, author, published_year, note FROM {user}_books_info WHERE title LIKE %s', ('%' + book_title + '%',))
-        else:
-            # 如果條件不符合，則直接返回一個空的 JSON 陣列
-            return JsonResponse([])
+    if request.method == 'GET':
+        # 建立資料庫連接
+        with connection.cursor() as cursor:
+            try:
+                # 取得前端網頁的欄位資料
+                book_title = request.GET.get('book_title')
+                author = request.GET.get('author')
+                # 用作者篩選書籍列表
+                if author and not book_title:
+                    cursor.execute(f'SELECT title, author, published_year, note FROM {user}_books_info WHERE author = "{author}"')
+                # 用書名關鍵字做篩選
+                elif book_title:
+                    cursor.execute(f'SELECT title, author, published_year, note FROM {user}_books_info WHERE title LIKE %s', ('%' + book_title + '%',))
 
-        books = cursor.fetchall()
-        # 取得欄位名稱
-        columns = [column[0] for column in cursor.description]
-        # 將MySQL查詢結果轉換為字典
-        books_dict = [dict(zip(columns, book)) for book in books]
+                books = cursor.fetchall()
+                # 取得欄位名稱
+                columns = [column[0] for column in cursor.description]
+                # 將MySQL查詢結果轉換為字典
+                books_dict = [dict(zip(columns, book)) for book in books]
+                # 返回字典
+                return JsonResponse(books_dict, safe=False)
+            except:
+                return JsonResponse('查無資料',safe=False)
+    else:
+        return HttpResponseBadRequest('無效的請求方法')
 
-        # 返回字典
-        return JsonResponse(books_dict, safe=False)
-    
+# 排序查詢
+def get_books_orderby(request,user,sort):
+    if request.method == 'GET':
+        with connection.cursor() as cursor:
+            try:
+                if sort == "asc":
+                    cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info order by published_year,author")
+                else:
+                    cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info order by published_year,author desc")
+                books = cursor.fetchall()
+                # 取得欄位名稱
+                columns = [column[0] for column in cursor.description]
+                # 將MySQL查詢結果轉換為字典
+                books_dict = [dict(zip(columns, book)) for book in books]
+                return JsonResponse(books_dict, safe=False)
+            
+            except:
+                return HttpResponseBadRequest('No User')
+    else:
+        return HttpResponseBadRequest('無效的請求方法')
 
 # 新增書籍
 @csrf_exempt  # 必要的 POST 請求 CSRF 豁免權限
@@ -80,7 +103,7 @@ def book_add(request, user):
                              (id INT(11) NOT NULL AUTO_INCREMENT, \
                               title VARCHAR(50) NOT NULL, \
                               author VARCHAR(50) NOT NULL, \
-                              published_year INT(10) NOT NULL, \
+                              published_year INT(4) NOT NULL, \
                               note varchar(2000), \
                               PRIMARY KEY (id)) \
                               DEFAULT CHARSET=utf8mb4")
@@ -102,7 +125,6 @@ def book_add(request, user):
         return HttpResponseBadRequest('無效的請求方法')
 
 
-
 # 刪除書籍
 @csrf_exempt  # 請求 CSRF 豁免權限    
 def book_delete(request, user, title):
@@ -119,38 +141,37 @@ def book_delete(request, user, title):
 def book_update(request, user, title):
     if request.method == 'PUT':
         book = json.loads(request.body)
-        cursor = connection.cursor()
+        with connection.cursor() as cursor:
+            # 檢查書籍是否已存在
+            cursor.execute(f"SELECT * FROM {user}_books_info WHERE title=%s", [title])
+            result = cursor.fetchone()
+            if not result:
+                print('Book not exists')
+                return JsonResponse({'message': 'Book not exists'}, status=404)
 
-        # 檢查書籍是否已存在
-        cursor.execute(f"SELECT * FROM {user}_books_info WHERE title=%s", [title])
-        result = cursor.fetchone()
-        if not result:
-            print('Book not exists')
-            return JsonResponse({'message': 'Book not exists'}, status=404)
+            # 判斷要修改的資料有哪些    
+            update_values = {}
+            if 'title' in book:
+                if isinstance(book['title'], str) and book['title'] != '':
+                    update_values['title'] = book['title']
+            if 'author' in book:
+                if isinstance(book['author'], str) and book['author'] != '':
+                    update_values['author'] = book['author']
+            if 'published_year' in book:
+                if isinstance(book['published_year'], str) and book['published_year'] != '':
+                    update_values['published_year'] = book['published_year']
+            # 檢查傳送修改的資料
+            print(book)
+            print(update_values)
 
-        # 判斷要修改的資料有哪些    
-        update_values = {}
-        if 'title' in book:
-            if isinstance(book['title'], str) and book['title'] != '':
-                update_values['title'] = book['title']
-        if 'author' in book:
-            if isinstance(book['author'], str) and book['author'] != '':
-                update_values['author'] = book['author']
-        if 'published_year' in book:
-            if isinstance(book['published_year'], str) and book['published_year'] != '':
-                update_values['published_year'] = book['published_year']
-        # 檢查傳送修改的資料
-        print(book)
-        print(update_values)
-
-        if update_values:
-            set_clause = ', '.join([f"{key} = %s" for key in update_values.keys()])
-            values = list(update_values.values()) + [title]
-            query = f"UPDATE {user}_books_info SET {set_clause} WHERE title=%s"
-            cursor.execute(query, values)
-            return JsonResponse('修改成功', safe=False)
-        else:
-            return HttpResponse("No valid fields to update")
+            if update_values:
+                set_clause = ', '.join([f"{key} = %s" for key in update_values.keys()])
+                values = list(update_values.values()) + [title]
+                query = f"UPDATE {user}_books_info SET {set_clause} WHERE title=%s"
+                cursor.execute(query, values)
+                return JsonResponse('修改成功', safe=False)
+            else:
+                return HttpResponse("No valid fields to update")
     else:
         return HttpResponseBadRequest('無效的請求方法')
     
@@ -166,12 +187,13 @@ def book_note_update(request, user, title):
             return JsonResponse({'message': 'Note updated'})
         else:
             return JsonResponse({'message': 'Note field is missing or empty'}, status=400)
+
     elif request.method == 'DELETE':
         with connection.cursor() as cursor:
             cursor.execute(f"UPDATE {user}_books_info SET note = null WHERE title = %s", [title])
         return JsonResponse({'message': 'Note deleted'})
     else:
-        return JsonResponse({'message': 'Invalid method'}, status=405)
+        return HttpResponseBadRequest('無效的請求方法')
 
 
 

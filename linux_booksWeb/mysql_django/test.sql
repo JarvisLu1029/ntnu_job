@@ -378,33 +378,6 @@ INSERT INTO `django_session` VALUES ('aen60l4kaps4aioy9w2iiot6gptz0byl','.eJxVjE
 UNLOCK TABLES;
 
 --
--- Table structure for table `james_books_info`
---
-
-DROP TABLE IF EXISTS `james_books_info`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `james_books_info` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `title` varchar(50) NOT NULL,
-  `author` varchar(50) NOT NULL,
-  `published_year` int NOT NULL,
-  `note` varchar(2000) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `james_books_info`
---
-
-LOCK TABLES `james_books_info` WRITE;
-/*!40000 ALTER TABLE `james_books_info` DISABLE KEYS */;
-INSERT INTO `james_books_info` VALUES (21,'','AAA',1234,NULL),(22,'','bbb',2231,NULL),(25,'有時你會寂寞但那並非沒有道理',' 查爾斯・布考斯基',23,'12345'),(26,' Python漫遊數學王國：高等數學、線性代數、數理統計及運籌學','畢文斌',2022,NULL),(27,'C# Windows游戲設計','畢文斌',2014,NULL),(28,'','馬克斯・查夫金 ',2023,NULL),(29,'國文完全攻略','李宜藍',2022,NULL),(30,'超級犯規！國文高分關鍵的七堂課','李宜藍',2022,NULL),(31,'超級犯規！國文高分關鍵的8堂課','李宜藍',2019,NULL);
-/*!40000 ALTER TABLE `james_books_info` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `yuki_books_info`
 --
 
@@ -439,4 +412,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-02-18 12:20:31
+-- Dump completed on 2023-02-21  4:24:33

@@ -31,7 +31,8 @@ services:
       links:
         - mysql:mysql
       working_dir: /home/pyDjango/
-      command: python manage.py runserver 0.0.0.0:8000 
+      # 等待 3306 port 後執行一連串的Django程式 (migrate,runserver)
+      command: ./wait-for-it.sh mysql:3306 --timeout=30 --strict -- ./docker-entrypoint.sh
      
 networks:
   customnetwork:

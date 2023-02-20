@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <script src="{% static 'js/main.js' %}"></script>
 
-    <title>Astral by HTML5 UP</title>
+    <title>BOOKS Web</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
     <noscript>
@@ -28,10 +28,16 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-top: 10px;
         }
 
         .my-btn:hover {
             background-color: #239abb;
+        }
+
+        .book-warning {
+            color: red;
+            font-weight: bold;
         }
 
         table {
@@ -40,23 +46,19 @@
         }
 
         th:nth-child(1) {
-            width: 20%;
-            /* 第一欄佔 table 的 1/3 */
+            width: 25%;
         }
 
         th:nth-child(2) {
             width: 15%;
-            /* 第一欄佔 table 的 1/3 */
         }
 
         th:nth-child(3) {
             width: 10%;
-            /* 第二欄佔 table 的 2/3 */
         }
 
         th:nth-child(4) {
             width: 40%;
-            /* 第二欄佔 table 的 2/3 */
         }
 
         th,
@@ -68,10 +70,12 @@
 
         th {
             background-color: #f2f2f2;
+            color: black
         }
 
         tr:nth-child(even) {
             background-color: #f2f2f2;
+            color: black
         }
 
         thead {
@@ -79,6 +83,39 @@
             font-weight: bold;
         }
 
+        tbody {
+            color: black;
+        }
+
+        .sort-btn {
+            position: relative;
+            /* 按钮的内边距 */
+            border: none;
+            /* 移除按钮的边框 */
+            background-color: #cad354;
+            /* 按钮的背景色 */
+            color: #fff;
+            /* 按钮的文本颜色 */
+            cursor: pointer;
+            /* 光标样式 */
+        }
+
+        .sort-btn::after {
+            content: "";
+            display: block;
+            position: absolute;
+            top: 50%;
+            /* 伪元素垂直居中 */
+            transform: translateY(-50%);
+            /* 伪元素上下居中 */
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 8px 8px 0 8px;
+            /* 定义箭头的大小 */
+            border-color: #fff transparent transparent transparent;
+            /* 定义箭头的颜色 */
+        }
     </style>
 </head>
 
@@ -89,10 +126,11 @@
 
         <!-- Nav -->
         <nav id="nav">
-            <a href="#" class="icon solid fa-home"><span>USER</span></a>
-            <a href="#work" class="icon solid fa-folder"><span>Books</span></a>
-            <a href="#contact" class="icon solid fa-envelope"><span>Contact</span></a>
-            <a href="https://github.com/JarvisLu1029/ntnu_job" class="icon brands fa-github"><span>GitHub</span></a>
+            <a href="#" class="icon solid fa-user"><span>使用者</span></a>
+            <a href="#work" class="icon solid fa-list"><span>書籍清單</span></a>
+            <a href="#contact" class="icon solid fa-book"><span>閱讀心得</span></a>
+            <a href="https://github.com/JarvisLu1029/ntnu_job" class="icon brands fa-github"
+                target="_blank"><span>GitHub</span></a>
         </nav>
 
         <!-- Main -->
@@ -101,32 +139,27 @@
             <!-- Me -->
             <article id="home" class="panel intro">
                 <header>
-                    <h1>使用者</h1>
-                    <input id=book_user type="text" name="User" placeholder="User" required>
-                    <a href="#work" class="jumplink pic">
-                        <button class="my-btn" id=book_user_request type="submit">查詢</button>
-                    </a>
+                    <div>
+                        <h1>使用者</h1>
+
+                        <input id=book_user type="text" name="User" placeholder="User" required>
+                        <a href="#work" class="jumplink pic">
+                            <button class="my-btn" id=book_user_request type="submit">查詢</button>
+                        </a>
+                    </div>
                 </header>
                 <a href="#work" class="jumplink pic">
                     <span class="arrow icon solid fa-chevron-right"><span>See my work</span></span>
-                    <img src="{% static 'images/me.jpg' %}" alt="" />
+                    <img src="{% static 'images/stay_unique.jpg' %}" alt="" />
                 </a>
             </article>
 
             <!-- Work -->
             <article id="work" class="panel">
                 <section>
-
-                    <div class="row">
-                        <div class="col-2 col-12-medium">
-                            <button class="my-btn" id=book_user_orderby type="submit">排序查詢</button>
-                        </div>
-                        <div id=book_user_message></div>
-                    </div>
-
-                    <br />
+                    <div class="book-warning" id=book_user_message></div>
                     <!-- 新增書籍 -->
-                    <h3>Add Book</h3>
+                    <h3>新增書籍</h3>
                     <form id="add-book-form">
                         <div class="row">
                             <div class="col-5 col-12-medium">
@@ -136,16 +169,16 @@
                                 <input type="text" name="author" placeholder="作者" required>
                             </div>
                             <div class="col-2 col-12-medium">
-                                <input type="number" name="published_year" placeholder="出版年" value=2000 required>
+                                <input type="number" name="published_year" placeholder="出版年" required>
                             </div>
                             <div>
                                 <button class="my-btn" id=book_add type="submit">新增</button>
                             </div>
-                            <div id=book_add_message></div>
+                            <div class="book-warning" id=book_add_message></div>
                         </div>
                     </form>
                     <!-- 查詢書籍 -->
-                    <h3>Search Book</h3>
+                    <h3>查詢書籍</h3>
                     <form id="search-book-form">
                         <div class="row">
                             <div class="col-5 col-12-medium">
@@ -158,59 +191,41 @@
                                 <button class="my-btn" id=book_search_request type="submit">查詢</button>
                             </div>
                         </div>
-
                     </form>
-
                     <!-- 編輯書籍 -->
-                    <h3>Edit Book</h3>
+                    <h3>編輯書籍</h3>
                     <form id="edit-book-form">
                         <div class="row">
                             <div class="col-5 col-12-medium">
                                 <input id=edit_old_book type="text" name="old_title" placeholder="原書名" required>
                             </div>
                         </div>
-                        <h3>New</h3>
+                        <h3>新的書籍資料</h3>
                         <div class="row">
                             <div class="col-5 col-12-medium">
-                                <input type="text" name="new_title" placeholder="新的書名">
+                                <input type="text" name="new_title" placeholder="新書名">
                             </div>
                             <div class="col-3 col-12-medium">
-                                <input type="text" name="new_author" placeholder="新的作者">
+                                <input type="text" name="new_author" placeholder="新作者">
                             </div>
                             <div class="col-2 col-12-medium">
-                                <input type="number" name="new_published_year" placeholder="新的出版年">
+                                <input type="number" name="new_published_year" placeholder="新出版年">
                             </div>
                             <div>
                                 <button class="my-btn" id=book_edit_request type="submit">確認修改</button>
                             </div>
-                            <div id=book_edit_message></div>
+                            <div class="book-warning" id=book_edit_message></div>
                         </div>
                     </form>
-
-                    <!-- 書籍心得 -->
-                    <h3>Book Note</h3>
-                    <form id="book-note-form">
-                        <div class="row">
-                            <div class="col-5 col-12-medium">
-                                <input type="text" name="title" placeholder="書名">
-                            </div>
-                            <br />
-                            <div>
-                                <textarea id="book_experience" name="experience" placeholder="在這邊寫下你的閱讀心得"></textarea>
-                            </div>
-                            <div>
-                                <button class="my-btn" id=book_note_request type="submit">送出</button>
-                            </div>
+                    <div class="row">
+                        <div class="col-2 col-12-medium">
+                            <button class="my-btn" id=book_user_orderby data-sort="asc" type="submit">排序查詢</button>
                         </div>
-                    </form>
-                    <div>
-                        <button class="my-btn" id=book_note_delete>刪除心得</button>
+                        <div class="col-2 col-12-medium"><button class="my-btn" id="sortButtonAuthor">作者排序</button></div>
+                        <div class="col-2 col-12-medium"><button class="my-btn" id="sortButton_year">年份排序</button></div>
                     </div>
-                    <br />
-                    <button class="my-btn" id="sortButton_year">Sort Year</button>
-                    <button class="my-btn" id="sortButtonAuthor">Sort Author</button>
 
-                    <h3>Books</h3>
+                    <h3>書籍列表</h3>
                     <table id="book-table">
                         <thead>
                             <tr>
@@ -284,16 +299,7 @@
                             document.getElementById('debug').innerHTML = data['title'];
                         }
 
-                    </script>
-
-                    <script>
-                        const book_user = document.getElementById('book_user');
-                        const book_user_message = document.getElementById('book_user_message');
-                        const tbody = document.querySelector('table#book-table tbody');
-                        const debug = document.getElementById('debug');
-
-                        // 查詢使用者底下書籍的BTN
-                        document.getElementById('book_user_request').addEventListener('click', (event) => {
+                        function selectBooks() {
                             if (!book_user.validity.valid) {
                                 alert("請輸入使用者");
                                 event.preventDefault(); // 防止提交表單
@@ -303,7 +309,6 @@
                             }).then(function (response) {
                                 return response.json();
                             }).then(function (books) {
-
                                 // 清空 tbody 底下既有元素，如 tr td 等
                                 tbody.innerHTML = '';
                                 // 將回傳資料動態生成在網頁上
@@ -320,33 +325,40 @@
 																		<td>${book['published_year']}</td>
 																		<td>${book['note']}</td>
 																		<td>
-																		<button class="edit" onclick="editRow(this.parentNode.parentNode)" data-id="update_${book['title']}" >修改</button>
-																		<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																		<button class=my-btn data-id="del_${book['title']}" class="delete-btn">刪除</button>
 																		</td>`
                                     tbody.appendChild(tr);
+                                }
+                            })
+                                .catch(error => {
+                                    // display the error message on the webpage
+                                    document.querySelector('#book_user_message').innerHTML = '該使用者尚未建立書籍，請新增第一本書籍';
+                                });
 
-                                    // 事件代理：透過父元素來監聽 click 事件
-                                    document.querySelector('tbody').addEventListener('click', function (event) {
-                                        const target = event.target;
-                                        // 刪除該 row 以及該資料庫 data
-                                        if (target.classList.contains('delete-btn')) {
-                                            target.closest('tr').remove();
-                                            const book_del_title = target.getAttribute('data-id');
-                                            fetch(`/books/${book_user.value}/${book_del_title}`, {
-                                                method: 'DELETE'
-                                            })
-                                        }
-
-                                        // if (target.classList.contains('update-btn')) {
-                                        //     const book_update = target.getAttribute('data-id');
-
-                                        //     fetch(`/books/${book_user.value}/${book_update}`), {
-                                        //         method: 'PUT'
-                                        //     }
-                                        // }
-                                    });
-                                };
+                            // 事件代理：透過父元素來監聽 click 事件
+                            document.querySelector('tbody').addEventListener('click', function (event) {
+                                const target = event.target;
+                                // 刪除該 row 以及該資料庫 data
+                                if (target.classList.contains('delete-btn')) {
+                                    target.closest('tr').remove();
+                                    const book_del_title = target.getAttribute('data-id');
+                                    fetch(`/books/${book_user.value}/${book_del_title}`, {
+                                        method: 'DELETE'
+                                    })
+                                }
                             });
+                        }
+                    </script>
+
+                    <script>
+                        const book_user = document.getElementById('book_user');
+                        const book_user_message = document.getElementById('book_user_message');
+                        const tbody = document.querySelector('table#book-table tbody');
+                        const debug = document.getElementById('debug');
+
+                        // 查詢使用者底下書籍的BTN
+                        document.getElementById('book_user_request').addEventListener('click', (event) => {
+                            selectBooks()
                         });
 
                         // 排序（升序或降序）
@@ -412,12 +424,18 @@
                         // 查詢書籍與年份的排序
                         document.getElementById('book_user_orderby').addEventListener('click', (event) => {
                             event.preventDefault();
-                            fetch(`/books/${book_user.value}/orderby`, {
+                            let sort = $("#book_user_orderby").data("sort");
+                            fetch(`/books/${book_user.value}/orderby/${sort}`, {
                                 method: "GET"
                             }).then(function (response) {
                                 return response.json();
                             }).then(function (books) {
-
+                                if (sort === 'asc') {
+                                    document.querySelector("#book_user_orderby").dataset.sort = "desc";
+                                    document.getElementById('debug').innerHTML = sort;
+                                } else {
+                                    document.getElementById("book_user_orderby").setAttribute("data-sort", "asc");
+                                }
                                 // 清空 tbody 底下既有元素，如 tr td 等
                                 tbody.innerHTML = '';
                                 // 將回傳資料動態生成在網頁上
@@ -433,8 +451,6 @@
 																		<td>${book['published_year']}</td>
 																		<td>${book['note']}</td>
 																		<td>
-																		<button data-id="note_${book['id']}" class="note-btn">閱讀心得</button>
-																		<button class="edit" onclick="editRow(this.parentNode.parentNode)" data-id="update_${book['title']}" >修改</button>
 																		<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
 																		</td>`
                                     tbody.appendChild(tr);
@@ -451,13 +467,6 @@
                                             })
                                         }
 
-                                        // if (target.classList.contains('update-btn')) {
-                                        //     const book_update = target.getAttribute('data-id');
-
-                                        //     fetch(`/books/${book_user.value}/${book_update}`), {
-                                        //         method: 'PUT'
-                                        //     }
-                                        // }
                                     });
                                 };
                             });
@@ -494,12 +503,13 @@
 																			<td>${book['published_year']}</td>
 																			<td>${book['note']}</td>
 																			<td>
-																			<button data-id="note_${book['id']}" class="note-btn">閱讀心得</button>
-																			<button class="edit" onclick="editRow(this.parentNode.parentNode)" data-id="update_${book['title']}" >修改</button>
-																			<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																			<button class=my-btn data-id="del_${book['title']}" class="delete-btn">刪除</button>
 																			</td>`
                                         tbody.appendChild(tr);
                                     }
+                                })
+                                .catch(error => {
+                                    document.querySelector('#book_user_message').innerHTML = '查無資料';
                                 });
                         });
 
@@ -534,6 +544,8 @@
                                     } else {
                                         book_add_message.innerHTML = 'Error adding book.';
                                     }
+                                    // 更新清單
+                                    selectBooks()
                                 })
                                 .catch(error => {
                                     console.error('Error:', error);
@@ -574,40 +586,6 @@
                                 })
                         });
 
-                        const bookNoteForm = document.getElementById('book-note-form');
-
-                        bookNoteForm.addEventListener('submit', (event) => {
-                            event.preventDefault(); // 防止表單提交頁面重新載入
-
-                            const bookExperience = document.getElementById('book_experience');
-                            const noteFormTitle = document.querySelector('form#book-note-form input')
-
-                            const noteFormData = new FormData(bookNoteForm);
-                            const editNewData = {
-                                title: noteFormData.get('title'),
-                                note: noteFormData.get('experience')
-                            };
-                            const body = JSON.stringify(editNewData);
-                            fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: body
-                            })
-                        });
-                        // 刪除心得
-                        document.querySelector('button#book_note_delete').addEventListener('click', function (event) {
-                            event.preventDefault(); // 防止表單提交頁面重新載入
-                            const noteFormTitle = document.querySelector('form#book-note-form input')
-
-                            fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
-                                method: 'DELETE',
-
-                            });
-
-                        })
-
 
                     </script>
 
@@ -615,33 +593,69 @@
                 </section>
             </article>
 
-            <!-- Contact -->
+            <!-- 書籍心得 -->
             <article id="contact" class="panel">
                 <header>
-                    <h2>Contact Me</h2>
+                    <h2>閱讀心得</h2>
                 </header>
-                <form action="#" method="post">
+                <form id="book-note-form" method="post">
                     <div>
                         <div class="row">
                             <div class="col-6 col-12-medium">
-                                <input type="text" name="name" placeholder="Name" />
+                                <input type="text" name="title" placeholder="書名" />
                             </div>
                             <div class="col-6 col-12-medium">
-                                <input type="text" name="email" placeholder="Email" />
+                                <button class="my-btn" id=book_note_delete>刪除心得</button>
                             </div>
                             <div class="col-12">
-                                <input type="text" name="subject" placeholder="Subject" />
+                                <textarea id="book_experience" name="book_experience" placeholder="在這邊寫下你的閱讀心得"
+                                    rows="6"></textarea>
                             </div>
                             <div class="col-12">
-                                <textarea name="message" placeholder="Message" rows="6"></textarea>
+                                <button class="my-btn" id=book_note_request type="submit">儲存心得</button>
                             </div>
-                            <div class="col-12">
-                                <input type="submit" value="Send Message" />
-                            </div>
+
                         </div>
                     </div>
                 </form>
             </article>
+
+            <script>
+                // 閱讀心得
+                const bookNoteForm = document.getElementById('book-note-form');
+
+                bookNoteForm.addEventListener('submit', (event) => {
+                    event.preventDefault(); // 防止表單提交頁面重新載入
+
+                    const bookExperience = document.getElementById('book_experience');
+                    const noteFormTitle = document.querySelector('form#book-note-form input')
+
+                    const noteFormData = new FormData(bookNoteForm);
+                    const editNewData = {
+                        title: noteFormData.get('title'),
+                        note: noteFormData.get('experience')
+                    };
+                    const body = JSON.stringify(editNewData);
+                    fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: body
+                    })
+                });
+                // 刪除心得
+                document.querySelector('button#book_note_delete').addEventListener('click', function (event) {
+                    event.preventDefault(); // 防止表單提交頁面重新載入
+                    const noteFormTitle = document.querySelector('form#book-note-form input')
+
+                    fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
+                        method: 'DELETE',
+
+                    });
+
+                })
+            </script>
 
         </div>
 
@@ -649,7 +663,7 @@
         <div id="footer">
             <ul class="copyright">
                 <li>&copy; Untitled.</li>
-                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                <li>Design: <a href="#">BOOKS API</a></li>
             </ul>
         </div>
 
