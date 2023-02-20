@@ -3,7 +3,7 @@
 ### 如何將系統開發環境架設起來,需要寫到能讓我們看得懂如何架設你的系統
 1. 使用 VMware 啟動一台虛擬機 ( Ubuntu 22.04 )
 2. 使用 VS code Remote SSH 至 VMware 撰寫文件
-3. 使用 Docker (23.0.1) 啟動 Python ( 3.11 ) Dockerfile 安裝Django、PyMySQL套件
+3. 使用 Docker (23.0.1) 建立 Dockerfile 啟動 Python ( 3.11 )  安裝Django、PyMySQL套件
 4. 使用 Docker-compose (2.16.0) 部屬至 GCP 啟動服務
 
 
@@ -12,7 +12,7 @@
 1. 使用者輸入姓名查詢可以查看該使用者的書籍列表
     - `GET /books/<str:user>`
         - 預期輸出 ⇒ `return JsonResponse(books_dict, safe=False)`
-        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('No User')` ⇒ 前端網頁catch error顯示『該使用者尚未建立書籍，請新增第一本書籍』
+        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('No User')` ⇒ 前端網頁顯示『該使用者尚未建立書籍，請新增第一本書籍』
 2. 使用者可新增書籍以及為該書籍建立書籍資訊,書籍資訊至少需包括作者、出版年、書名 
     - `POST /books/<str:user>/add/`
         - 前端有三個 input 讓使用者輸入作者、出版年、書名 ，皆須輸入才可送出
@@ -31,11 +31,18 @@
 5. 使用者可以為某一本書籍新增、刪除、編輯閱讀心得
     - `PUT DELETE /books/<str:user>/<str:title>/note`
         - 輸入書名後前端兩個按鈕分別接收 PUT / DELETE 給後端判斷
-        - 
+        - 預期輸出 ⇒ `return JsonResponse({'message': 'Note updated'})`
+        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('無效的請求方法')`
 6. 使用者可以篩選出同個作者的書籍列表/使用者可以透過關鍵字在書名欄位中搜尋,找到他們要找的書籍
     - `GET /books/<str:user>/book_search/`
+        - 前端分別有『書名關鍵字 』及 『作者』兩個欄位 ⇒ 依據給的資料回傳不同的資料庫篩選方式
+        - 預期輸出 ⇒ `return JsonResponse(books_dict, safe=False)`
+        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('無效的請求方法')`
 7. 使用者可以依照作者與出版年排列書籍列表
     - `GET /books/<str:user>/orderby/<str:sort>`
+        - 提供排序查詢按鈕
+        - 預期輸出 ⇒ `return JsonResponse(books_dict, safe=False)`
+        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('無效的請求方法')`
   
 ### 資料庫說明文件:有幾張資料表、資料表欄位的資料型態是什麼、資料庫關聯圖
   有新的使用者就會建立新的Table ⇒ 用 **<使用者名稱>_books_info** 命名
