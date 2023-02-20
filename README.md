@@ -1,11 +1,10 @@
 # 實作一套個人書籍管理系統的後端API
 
 ### 如何將系統開發環境架設起來,需要寫到能讓我們看得懂如何架設你的系統
-⇒ 使用 VMware 啟動一台虛擬機 ( Ubuntu 22.04 )
-⇒ 使用 VS code Remote SSH 至 VMware 撰寫文件
-⇒ 安裝 Docker ( 23.0.1 ) Docker-compose ( 2.16.0 )
-⇒ 使用 Docker 啟動 Python ( 3.11 ) Dockerfile 安裝Django、PyMySQL套件
-⇒ 使用 Docker-compose 部屬至雲端啟動服務
+1. 使用 VMware 啟動一台虛擬機 ( Ubuntu 22.04 )
+2. 使用 VS code Remote SSH 至 VMware 撰寫文件
+3. 使用 Docker (23.0.1) 啟動 Python ( 3.11 ) Dockerfile 安裝Django、PyMySQL套件
+4. 使用 Docker-compose (2.16.0) 部屬至 GCP 啟動服務
 
 
 ### API說明文件:總共有幾隻API、每個API的URL是什麼、怎麼帶入參數、預期的輸出是什麼、有哪些錯誤訊息
