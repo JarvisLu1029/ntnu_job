@@ -1,0 +1,40 @@
+version: "3.7"
+services:
+  mysql:
+      image: mysql:latest
+      container_name: mysql18_server
+      environment:
+         MYSQL_ROOT_PASSWORD: "passw0rd!"
+      ports:
+         - 3306:3306
+      volumes:
+         - /share/booksWeb/mysql_django/:/docker-entrypoint-initdb.d
+         - /share/booksWeb/mysql_django/mysql_data:/var/lib/mysql
+      networks:
+        customnetwork:
+          ipv4_address: 172.10.0.9
+
+  web:
+      build:
+        context: .
+        dockerfile: Dockerfile
+      container_name: pydjango_env
+      volumes:
+        - /share/booksWeb/pydjango/NTNUBookWeb/:/home/pyDjango/
+      ports:
+        - 8000:8000
+      depends_on:
+        - mysql
+      networks:
+        customnetwork:
+          ipv4_address: 172.10.0.10
+      links:
+        - mysql:mysql
+      working_dir: /home/pyDjango/
+      command: python manage.py runserver 0.0.0.0:8000 
+     
+networks:
+  customnetwork:
+    ipam:
+      config:
+        - subnet : 172.10.0.0/16
