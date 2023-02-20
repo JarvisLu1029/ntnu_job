@@ -17,6 +17,14 @@
   如何將系統開發環境架設起來,需要寫到能讓我們看得懂如何架設你的系統
   
   API說明文件:總共有幾隻API、每個API的URL是什麼、怎麼帶入參數、預期的
+  API說明文件:總共有幾隻API、每個API的URL是什麼、怎麼帶入參數、預期的輸出是什麼、有哪些錯誤訊息
+
+1. 使用者可新增書籍以及為該書籍建立書籍資訊,書籍資訊至少需包括作者、出版年、書名 
+    - `path('books/str:user/add/', POST)`
+        - 預期輸出 ⇒ `JsonResponse('書籍新增成功', safe=False)`
+        - 錯誤訊息 ⇒ `JsonResponse('書籍已存在', safe=False)`
+2. 使用者可以刪除書籍
+    - `path('books/str:user/del_str:title', DELETE)`
   
   ### 使用者可新增書籍以及為該書籍建立書籍資訊,書籍資訊至少需包括作者、出版年、書名
   @app.route('/books/<user>/add', method=['POST'])
