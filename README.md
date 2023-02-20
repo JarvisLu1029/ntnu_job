@@ -38,4 +38,9 @@
     - `GET /books/<str:user>/orderby/<str:sort>`
   
 ### 資料庫說明文件:有幾張資料表、資料表欄位的資料型態是什麼、資料庫關聯圖
-  有新的使用者就會建立新的Table => 用 **<使用者名稱>_books_info** 命名
+  有新的使用者就會建立新的Table ⇒ 用 **<使用者名稱>_books_info** 命名
+  ID INT(11)
+  書名(title) VARCHAR(50)
+  作者(author) VARCHAR(50)
+  出版年(published_year) INT(4)
+  讀書心得(note) VARCHAR(2000)
