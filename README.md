@@ -10,7 +10,7 @@ API說明文件:總共有幾隻API、每個API的URL是什麼、怎麼帶入參�
 1. 使用者輸入姓名查詢可以查看該使用者的書籍列表
     - `GET /books/<str:user>`
         - 預期輸出 ⇒ `return JsonResponse(books_dict, safe=False)`
-        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('No User')` ⇒ 前端網頁顯示『該使用者尚未建立書籍，請新增第一本書籍』
+        - 錯誤訊息 ⇒ `return HttpResponseBadRequest('No User')` ⇒ 前端網頁catch error顯示『該使用者尚未建立書籍，請新增第一本書籍』
 2. 使用者可新增書籍以及為該書籍建立書籍資訊,書籍資訊至少需包括作者、出版年、書名 
     - `POST /books/<str:user>/add/`
         - 前端有三個 input 讓使用者輸入作者、出版年、書名 ，皆須輸入才可送出
