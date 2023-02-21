@@ -169,7 +169,7 @@
                                 <input type="text" name="author" placeholder="作者" required>
                             </div>
                             <div class="col-2 col-12-medium">
-                                <input type="number" name="published_year" placeholder="出版年" required>
+                                <input type="number" name="published_year" placeholder="出版年" maxlength="4" required>
                             </div>
                             <div>
                                 <button class="my-btn" id=book_add type="submit">新增</button>
@@ -209,7 +209,7 @@
                                 <input type="text" name="new_author" placeholder="新作者">
                             </div>
                             <div class="col-2 col-12-medium">
-                                <input type="number" name="new_published_year" placeholder="新出版年">
+                                <input type="number" name="new_published_year" placeholder="新出版年" maxlength="4">
                             </div>
                             <div>
                                 <button class="my-btn" id=book_edit_request type="submit">確認修改</button>
@@ -582,7 +582,9 @@
                                 .then(function (response) {
                                     return response.json();
                                 }).then(function (message) {
+                                    edit_book_form.reset()
                                     edit_book_message.innerHTML = message;
+                                    selectBooks()
                                 })
                         });
 
@@ -610,6 +612,7 @@
                             <div class="col-12">
                                 <textarea id="book_experience" name="book_experience" placeholder="在這邊寫下你的閱讀心得"
                                     rows="6"></textarea>
+                                    <a id="note_message" class="book-warning"></a>
                             </div>
                             <div class="col-12">
                                 <button class="my-btn" id=book_note_request type="submit">儲存心得</button>
@@ -633,7 +636,7 @@
                     const noteFormData = new FormData(bookNoteForm);
                     const editNewData = {
                         title: noteFormData.get('title'),
-                        note: noteFormData.get('experience')
+                        note: noteFormData.get('book_experience')
                     };
                     const body = JSON.stringify(editNewData);
                     fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
@@ -642,6 +645,12 @@
                             'Content-Type': 'application/json'
                         },
                         body: body
+                    }).then(function(response){
+                        return response.json()
+                    }).then(function(message){
+                        bookNoteForm.reset()
+                        document.getElementById('note_message').innerHTML=message;
+                        selectBooks()
                     })
                 });
                 // 刪除心得
@@ -651,10 +660,15 @@
 
                     fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
                         method: 'DELETE',
+                    })
+                    .then(response => response.json())
+                    .then(message =>{
+                        bookNoteForm.reset()
+                        document.getElementById('note_message').innerHTML=message;
+                        selectBooks()
+                    })
 
-                    });
-
-                })
+                });
             </script>
 
         </div>

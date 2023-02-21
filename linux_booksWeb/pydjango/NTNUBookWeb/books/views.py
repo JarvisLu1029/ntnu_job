@@ -120,7 +120,7 @@ def book_add(request, user):
                                  VALUES (%s, %s, %s)",
                                (title, author, published_year))
                 print('資料新增成功')
-                return JsonResponse('書籍新增成功', safe=False)
+                return JsonResponse(f'{title}新增成功', safe=False)
     else:
         return HttpResponseBadRequest('無效的請求方法')
 
@@ -147,7 +147,7 @@ def book_update(request, user, title):
             result = cursor.fetchone()
             if not result:
                 print('Book not exists')
-                return JsonResponse({'message': 'Book not exists'}, status=404)
+                return JsonResponse('書籍清單找不到這本書' ,safe=False)
 
             # 判斷要修改的資料有哪些    
             update_values = {}
@@ -169,9 +169,9 @@ def book_update(request, user, title):
                 values = list(update_values.values()) + [title]
                 query = f"UPDATE {user}_books_info SET {set_clause} WHERE title=%s"
                 cursor.execute(query, values)
-                return JsonResponse('修改成功', safe=False)
+                return JsonResponse(f'{title}修改成功', safe=False)
             else:
-                return HttpResponse("No valid fields to update")
+                return JsonResponse(f'{title}修改失敗', safe=False)
     else:
         return HttpResponseBadRequest('無效的請求方法')
     
@@ -179,19 +179,31 @@ def book_update(request, user, title):
 @csrf_exempt  # 請求 CSRF 豁免權限   
 def book_note_update(request, user, title):
     if request.method == 'PUT':
-        body = json.loads(request.body)
-        note = body.get('note')
-        if note:
-            with connection.cursor() as cursor:
+        with connection.cursor() as cursor:
+            # 檢查書籍是否已存在
+            cursor.execute(f"SELECT * FROM {user}_books_info WHERE title=%s", [title])
+            result = cursor.fetchone()
+            if not result:
+                print('Book not exists')
+                return JsonResponse('書籍清單找不到這本書' ,safe=False)
+            body = json.loads(request.body)
+            note = body.get('note')
+            if note:
                 cursor.execute(f"UPDATE {user}_books_info SET note = %s WHERE title = %s", [note, title])
-            return JsonResponse({'message': 'Note updated'})
-        else:
-            return JsonResponse({'message': 'Note field is missing or empty'}, status=400)
+                return JsonResponse(f'{title}心得更新成功' ,safe=False)
+            else:
+                return JsonResponse('請輸入心得',safe=False, status=400)
 
     elif request.method == 'DELETE':
         with connection.cursor() as cursor:
+            # 檢查書籍是否已存在
+            cursor.execute(f"SELECT * FROM {user}_books_info WHERE title=%s", [title])
+            result = cursor.fetchone()
+            if not result:
+                print('Book not exists')
+                return JsonResponse('書籍清單找不到這本書' ,safe=False)
             cursor.execute(f"UPDATE {user}_books_info SET note = null WHERE title = %s", [title])
-        return JsonResponse({'message': 'Note deleted'})
+        return JsonResponse(f'{title}心得刪除成功',safe=False)
     else:
         return HttpResponseBadRequest('無效的請求方法')
 
