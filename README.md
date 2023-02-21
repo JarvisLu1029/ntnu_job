@@ -3,9 +3,9 @@
 ### 如何將系統開發環境架設起來,需要寫到能讓我們看得懂如何架設你的系統
 1. 使用 VMware 啟動一台虛擬機 ( Ubuntu 22.04 )
 2. 使用 VS code Remote SSH 至 VMware 撰寫文件
-3. 使用 Docker (23.0.1) 建立 Dockerfile 啟動 Python ( 3.11 )  安裝Django、PyMySQL套件
-4. 使用 Docker-compose (2.16.0) 部屬至 GCP 啟動服務
-
+3. 使用 Docker (23.0.1) 建立 Dockerfile 架設 Python ( 3.11 ) 安裝Django、PyMySQL套件
+4. 使用 Docker-compose (2.16.0) 啟動 Python、MySQL ( 8.0 ) 部屬至 GCP 啟動服務
+5. 網站連結:<http://35.236.155.54/index/>
 
 ### API說明文件:總共有幾隻API、每個API的URL是什麼、怎麼帶入參數、預期的輸出是什麼、有哪些錯誤訊息
 
@@ -46,8 +46,8 @@
   
 ### 資料庫說明文件:有幾張資料表、資料表欄位的資料型態是什麼、資料庫關聯圖
   有新的使用者就會建立新的Table ⇒ 用 **<使用者名稱>_books_info** 命名
-  ID INT(11)
-  書名(title) VARCHAR(50)
-  作者(author) VARCHAR(50)
-  出版年(published_year) INT(4)
-  讀書心得(note) VARCHAR(2000)
+  - ID INT(11)
+  - 書名(title) VARCHAR(50)
+  - 作者(author) VARCHAR(50)
+  - 出版年(published_year) INT(4)
+  - 讀書心得(note) VARCHAR(2000)
