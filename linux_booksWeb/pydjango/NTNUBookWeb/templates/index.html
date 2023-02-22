@@ -5,6 +5,7 @@
 <head>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="icon" href="{% static 'images/booksIcon.png' %}">
     <script src="{% static 'js/main.js' %}"></script>
 
     <title>BOOKS Web</title>
@@ -463,6 +464,7 @@
                                     }
                                 })
                                 .catch(error => {
+                                    tbody.innerHTML = '';
                                     document.querySelector('#book_user_message').innerHTML = '查無資料';
                                 });
                         });
