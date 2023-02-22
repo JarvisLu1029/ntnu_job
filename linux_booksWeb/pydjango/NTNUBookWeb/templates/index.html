@@ -136,7 +136,7 @@
         <!-- Main -->
         <div id="main">
 
-            <!-- Me -->
+            <!-- User -->
             <article id="home" class="panel intro">
                 <header>
                     <div>
@@ -154,7 +154,7 @@
                 </a>
             </article>
 
-            <!-- Work -->
+            <!-- Books -->
             <article id="work" class="panel">
                 <section>
                     <div class="book-warning" id=book_user_message></div>
@@ -219,9 +219,10 @@
                     </form>
                     <div class="row">
                         <div class="col-2 col-12-medium">
-                            <button class="my-btn" id=book_user_orderby data-sort="asc" type="submit">排序查詢</button>
+                            <button class="my-btn" id=book_user_orderby data-sort="asc" type="submit">作者與年份排序</button>
                         </div>
-                        <div class="col-2 col-12-medium"><button class="my-btn" id="sortButtonAuthor">作者排序</button></div>
+                        <div class="col-2 col-12-medium"><button class="my-btn" id="sortButtonAuthor">作者排序</button>
+                        </div>
                         <div class="col-2 col-12-medium"><button class="my-btn" id="sortButton_year">年份排序</button></div>
                     </div>
 
@@ -424,15 +425,16 @@
                         // 查詢書籍與年份的排序
                         document.getElementById('book_user_orderby').addEventListener('click', (event) => {
                             event.preventDefault();
-                            let sort = $("#book_user_orderby").data("sort");
-                            fetch(`/books/${book_user.value}/orderby/${sort}`, {
+                            var sortBtn = document.getElementById("book_user_orderby").getAttribute("data-sort");
+
+                            fetch(`/books/${book_user.value}/orderby/${sortBtn}`, {
                                 method: "GET"
                             }).then(function (response) {
                                 return response.json();
                             }).then(function (books) {
-                                if (sort === 'asc') {
-                                    document.querySelector("#book_user_orderby").dataset.sort = "desc";
-                                    document.getElementById('debug').innerHTML = sort;
+                                if (sortBtn === "asc") {
+                                    document.getElementById("book_user_orderby").setAttribute("data-sort", "desc");
+                                    document.getElementById('debug').innerHTML = $("#book_user_orderby").data("sort");
                                 } else {
                                     document.getElementById("book_user_orderby").setAttribute("data-sort", "asc");
                                 }
@@ -612,7 +614,7 @@
                             <div class="col-12">
                                 <textarea id="book_experience" name="book_experience" placeholder="在這邊寫下你的閱讀心得"
                                     rows="6"></textarea>
-                                    <a id="note_message" class="book-warning"></a>
+                                <a id="note_message" class="book-warning"></a>
                             </div>
                             <div class="col-12">
                                 <button class="my-btn" id=book_note_request type="submit">儲存心得</button>
@@ -645,11 +647,11 @@
                             'Content-Type': 'application/json'
                         },
                         body: body
-                    }).then(function(response){
+                    }).then(function (response) {
                         return response.json()
-                    }).then(function(message){
+                    }).then(function (message) {
                         bookNoteForm.reset()
-                        document.getElementById('note_message').innerHTML=message;
+                        document.getElementById('note_message').innerHTML = message;
                         selectBooks()
                     })
                 });
@@ -661,12 +663,12 @@
                     fetch(`/books/${book_user.value}/${noteFormTitle.value}/note`, {
                         method: 'DELETE',
                     })
-                    .then(response => response.json())
-                    .then(message =>{
-                        bookNoteForm.reset()
-                        document.getElementById('note_message').innerHTML=message;
-                        selectBooks()
-                    })
+                        .then(response => response.json())
+                        .then(message => {
+                            bookNoteForm.reset()
+                            document.getElementById('note_message').innerHTML = message;
+                            selectBooks()
+                        })
 
                 });
             </script>

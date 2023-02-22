@@ -70,9 +70,9 @@ def get_books_orderby(request,user,sort):
         with connection.cursor() as cursor:
             try:
                 if sort == "asc":
-                    cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info order by published_year,author")
+                    cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info order by author,published_year")
                 else:
-                    cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info order by published_year,author desc")
+                    cursor.execute(f"SELECT title, author, published_year, note FROM {user}_books_info order by author desc,published_year ")
                 books = cursor.fetchall()
                 # 取得欄位名稱
                 columns = [column[0] for column in cursor.description]
