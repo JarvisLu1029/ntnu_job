@@ -51,8 +51,13 @@ def get_books_by_search(request, user):
                 # 用書名關鍵字做篩選
                 elif book_title:
                     cursor.execute(f'SELECT title, author, published_year, note FROM {user}_books_info WHERE title LIKE %s', ('%' + book_title + '%',))
-
+                elif book_title and auther:
+                    cursor.execute(f'SELECT title, author, published_year, note FROM {user}_books_info WHERE title LIKE $s and author = $s',
+                        ('%'+ book_title +'%',author))
                 books = cursor.fetchall()
+
+                if not books:
+                    return HttpResponseBadRequest('Not exist')
                 # 取得欄位名稱
                 columns = [column[0] for column in cursor.description]
                 # 將MySQL查詢結果轉換為字典
@@ -60,7 +65,7 @@ def get_books_by_search(request, user):
                 # 返回字典
                 return JsonResponse(books_dict, safe=False)
             except:
-                return JsonResponse('查無資料',safe=False)
+                return HttpResponseBadRequest('Not exist')
     else:
         return HttpResponseBadRequest('無效的請求方法')
 

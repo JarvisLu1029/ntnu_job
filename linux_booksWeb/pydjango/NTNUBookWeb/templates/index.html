@@ -15,7 +15,8 @@
     </noscript>
 
     <style>
-        .my-btn {
+        
+        .my-btn, .delete-btn {
             float: right;
             padding: 10px 20px;
             font-size: 16px;
@@ -246,60 +247,7 @@
                     </div>
 
                     <script>
-                        // 動態修改按鈕
-                        function editRow(row) {
-                            var cells = row.getElementsByTagName("td");
-                            for (var i = 0; i < cells.length; i++) {
-                                var cell = cells[i];
-                                var content = cell.innerHTML;
-                                cell.innerHTML = "<input type='text' value='" + content + "'/>";
-                            }
-                            var editButton = row.getElementsByClassName("edit")[0];
-                            editButton.innerHTML = "儲存";
-                            editButton.onclick = function () { saveRow(row); };
-
-                        }
-                        // 修改後儲存
-                        function saveRow(row) {
-                            var cells = row.getElementsByTagName("td");
-                            var data = {};
-
-                            for (var i = 0; i < cells.length; i++) {
-                                var cell = cells[i];
-                                var input = cell.getElementsByTagName("input")[0];
-                                var fieldValue = input.value;
-                                data['title'] = cells[0].getElementsByTagName("input")[0].value
-                                data['author'] = cells[1].getElementsByTagName("input")[0].value
-                                data['published_year'] = cells[2].getElementsByTagName("input")[0].value
-
-                            }
-
-                            // 更新資料
-                            fetch(`/books/${book_user.value}/update_${data['title']}`, {
-                                method: 'PUT',
-                                headers: {
-                                    'Content-Type': 'application/json;charset=UTF-8'
-                                },
-                                body: JSON.stringify(data)
-                            })
-                                .then(response => response.json())
-                                .then(result => {
-                                    // Handle response from server
-                                    console.log(result);
-                                })
-                                .catch(error => {
-                                    // Handle error
-                                    console.error(error);
-                                });
-
-                            // Find the edit button in the row and update its properties
-                            var editButton = row.querySelector('.edit');
-                            editButton.innerHTML = "修改";
-                            editButton.onclick = function () { editRow(row); };
-                            // Debugging code
-                            document.getElementById('debug').innerHTML = data['title'];
-                        }
-
+                        
                         function selectBooks() {
                             if (!book_user.validity.valid) {
                                 alert("請輸入使用者");
@@ -312,6 +260,7 @@
                             }).then(function (books) {
                                 // 清空 tbody 底下既有元素，如 tr td 等
                                 tbody.innerHTML = '';
+                                document.querySelector('#book_user_message').innerHTML = '';
                                 // 將回傳資料動態生成在網頁上
                                 for (let i = 0; i < books.length; i++) {
                                     let book = books[i];
@@ -326,7 +275,7 @@
 																		<td>${book['published_year']}</td>
 																		<td>${book['note']}</td>
 																		<td>
-																		<button class=my-btn data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																		<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
 																		</td>`
                                     tbody.appendChild(tr);
                                 }
@@ -334,6 +283,8 @@
                                 .catch(error => {
                                     // display the error message on the webpage
                                     document.querySelector('#book_user_message').innerHTML = '該使用者尚未建立書籍，請新增第一本書籍';
+                                    // 清空 tbody 底下既有元素，如 tr td 等
+                                    tbody.innerHTML = '';
                                 });
 
                             // 事件代理：透過父元素來監聽 click 事件
@@ -434,7 +385,6 @@
                             }).then(function (books) {
                                 if (sortBtn === "asc") {
                                     document.getElementById("book_user_orderby").setAttribute("data-sort", "desc");
-                                    document.getElementById('debug').innerHTML = $("#book_user_orderby").data("sort");
                                 } else {
                                     document.getElementById("book_user_orderby").setAttribute("data-sort", "asc");
                                 }
@@ -453,7 +403,7 @@
 																		<td>${book['published_year']}</td>
 																		<td>${book['note']}</td>
 																		<td>
-																		<button data-id="del_${book['title']}" class="my-btn">刪除</button>
+																		<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
 																		</td>`
                                     tbody.appendChild(tr);
 
@@ -492,6 +442,7 @@
                                 .then(books => {
                                     // 清空 tbody 底下既有元素，如 tr td 等
                                     tbody.innerHTML = '';
+                                    document.querySelector('#book_user_message').innerHTML = '';
                                     // 將回傳資料動態生成在網頁上
                                     for (let i = 0; i < books.length; i++) {
                                         let book = books[i];
@@ -505,9 +456,10 @@
 																			<td>${book['published_year']}</td>
 																			<td>${book['note']}</td>
 																			<td>
-																			<button class=my-btn data-id="del_${book['title']}" class="delete-btn">刪除</button>
+																			<button data-id="del_${book['title']}" class="delete-btn">刪除</button>
 																			</td>`
                                         tbody.appendChild(tr);
+                                        search_book_form.reset()
                                     }
                                 })
                                 .catch(error => {
@@ -542,6 +494,7 @@
                                         response.json().then(data => {
                                             book_add_message.innerHTML = data;
                                             form.reset();
+                                            document.querySelector('#book_user_message').innerHTML = '';
                                         })
                                     } else {
                                         book_add_message.innerHTML = 'Error adding book.';
