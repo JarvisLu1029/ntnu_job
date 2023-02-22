@@ -5,7 +5,7 @@
 2. 使用 VS code Remote SSH 至 VMware 撰寫文件
 3. 使用 Docker (23.0.1) 建立 Dockerfile 架設 Python ( 3.11 ) 安裝Django、PyMySQL套件
 4. 使用 Docker-compose (2.16.0) 啟動 Python、MySQL ( 8.0 ) 部屬至 GCP 啟動服務
-5. 網站連結 : <http://35.236.155.54/index/>
+5. 網站連結 : <http://35.236.155.54/index/>  使用者可輸入範例:小明
 
 ### API說明文件:總共有幾隻API、每個API的URL是什麼、怎麼帶入參數、預期的輸出是什麼、有哪些錯誤訊息
 
